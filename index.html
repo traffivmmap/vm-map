@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<title>VM Map</title>
+<meta charset='utf-8'>
+
+<link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css' />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3&display=swap" rel="stylesheet">
+
+<script src='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+<script src="reverse-line.js"></script>
+<script src="html2canvas.min.js"></script>
+
+<script type="text/javascript" src="//cdn.jsdelivr.net/canvas-toblob/0.1/canvas-toBlob.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/filesaver.js@1.3.4/FileSaver.min.js"></script>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Source+Sans+3&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200&display=swap');
+
+
+body,
+html {
+	height: 100%;
+	margin: 0;
+	font-family: "Source Sans 3", sans-serif;
+	font-size:11pt;
+	color:#3a3a3a;
+}
+
+.container {
+	height:100%;
+	display:flex;
+}
+
+.map-container {
+	width: 100%;
+	padding: 10px;
+}
+
+.main-window {
+	flex-grow: 1;
+	height:100%;
+}
+
+.sidebar {
+	width: 420px;
+	background-color: #fbfbfb;
+	flex-shrink:0;
+	display: flex;
+	flex-direction: column;
+}
+
+.sidebar-entry, .category {
+	background-color: white;
+	border: 1px solid #d8d8d8;
+	padding: 15px;
+	margin: 8px;
+	margin-bottom: 16px;
+	border-radius: 8px;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.15));
+}
+
+.category {
+	display:flex;
+}
+
+.title {
+	font-weight: bold;
+}
+
+.content {
+		padding: 15px; 
+}
+
+.marker {
+	width: 64px;
+	height: 64px;
+	background-size: contain;
+	filter: drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3));
+	cursor: pointer;
+}
+
+.sidebar-image {
+	max-width:100%;
+	max-height:256px
+}
+
+.image-container {
+	text-align:center;
+	padding-bottom:20px;
+	padding-top: 15px;
+}
+
+.description {
+	padding: 5px;
+}
+
+.headline {
+	padding: 10px;
+	font-weight: bold;
+}
+
+.button-fit, .dropdownSelect, .legend{
+	position: relative;
+	z-index:100000;
+	background-color: white;
+	padding: 20px;
+	border-radius: 8px;
+	margin:20px;
+	border: none;
+	filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.25));
+	width: fit-content;
+	font-family: "Source Sans 3", sans-serif;
+	font-size:10pt;
+	color:#3a3a3a;
+
+}
+
+.tab {
+	border: 1px solid #d8d8d8;
+	position: relative;
+	border-radius: 8px 8px 0px 0px;
+	flex-grow: 1;
+	margin-top: 8px;
+	color: #969696;
+	padding: 15px;
+	font-weight: bold;
+	display: flex;
+}
+
+.tab-body {
+	background-color: #ccc;
+	border-left: 1px solid #d8d8d8;
+	overflow-y: auto;
+	height: 100%;
+	padding: 4px;
+	padding-top: 8px;
+	background: #FFFFFF;
+}
+
+.tab.active {
+	background: #FFFFFF;
+	border-bottom: none;
+	color: #3a3a3a;
+}
+
+.tab-container {
+	display: flex; /* or inline-flex */
+}
+
+.legend {
+	display: flex;
+	flex-direction: column;
+	font-weight: bold;
+}
+.legend-item {
+	display: flex;
+	align-items: center;
+	margin-top: 5px; /* Adjust spacing between items if needed */
+	font-weight: normal;
+}
+
+.legend-sub-item {
+	margin-left: 20px; /* Indent the radio buttons */
+	display: flex;
+	align-items: center;
+}
+.legend-sub-group {
+	display: flex;
+	flex-direction: column;
+	font-weight: normal;
+}
+
+.maplibregl-popup {
+	z-index:50000;
+}
+
+</style>
+</head>
+<body>
+	<div class="container">
+	  <div class="map-container">
+		  <div class="main-window" id='map'>
+		  <div id="map-buttons-container" style="display: flex; justify-content: space-between;">
+			  <button id="button-fit" class = "button-fit">Ganzes Gebiet anzeigen</button>
+
+				<button id="generate-btn" class = "button-fit">Exportieren/Drucken</button>
+
+			  <select id="styles" class="dropdownSelect">
+				<option value="basemap-de-style-a06ceb84.json">Karte</option>
+				<option value="https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json">Satellit</option>
+				<option value="https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/styles/bm_web_top.json">Topographisch</option>
+				
+			  </select>
+		  </div>
+
+		  <div class="legend">Weitere Layer
+			<div class="legend-item">
+				<input type="checkbox" id="verkehrsnachfrage" value="verkehrsnachfrage" onchange="switchlayer(['verkehrsnachfrage'], 'verkehrsnachfrage')" />
+				<label for="verkehrsnachfrage">Verkehrsnachfrage</label>
+			</div>
+			<div class="legend-item">
+			  <input type="checkbox" id="traffic" value="traffic" onchange="switchlayer(['traffic'], 'traffic')" />
+			  <label for="traffic">Verkehrslage</label>
+			</div>
+			<div class="legend-sub-group">
+			  <div class="legend-sub-item">
+				<input type="radio" name="traffic-flow" id="traffic-flow-current" value="traffic-flow-current" onchange="switchlayer(['traffic-flow-current'], 'traffic-flow-current')" checked/>
+				<label for="traffic-flow-current">Aktuell</label>
+			  </div>
+			  <div class="legend-sub-item">
+				<input type="radio" name="traffic-flow" id="traffic-flow-morning" value="traffic-flow-morning" onchange="switchlayer(['traffic-flow-morning'], 'traffic-flow-current')" />
+				<label for="traffic-flow-morning">Morgens</label>
+			  </div>
+			  <div class="legend-sub-item">
+				<input type="radio" name="traffic-flow" id="traffic-flow-noon" value="traffic-flow-noon" onchange="switchlayer(['traffic-flow-noon'], 'traffic-flow-noon')" />
+				<label for="traffic-flow-noon">Mittags</label>
+			  </div>
+			  <div class="legend-sub-item">
+				<input type="radio" name="traffic-flow" id="traffic-flow-evening" value="traffic-flow-evening" onchange="switchlayer(['traffic-flow-evening'], 'traffic-flow-evening')" />
+				<label for="traffic-flow-evening">Abends</label>
+			  </div>
+			  <div class="legend-sub-item">
+				<input type="radio" name="traffic-flow" id="traffic-flow-night" value="traffic-flow-night" onchange="switchlayer(['traffic-flow-night'], 'traffic-flow-night')" />
+				<label for="traffic-flow-night">Nachts</label>
+			  </div>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="infrastruktur" value="infrastruktur" onchange="switchlayer(['infrastruktur'], 'infrastruktur')" />
+				<label for="infrastruktur">Infrastruktur</label>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="stationierung" value="stationierung" onchange="switchlayer(['stationierung'], 'stationierung')" />
+				<label for="stationierung">Stationierungen</label>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="landkreise" value="landkreise" onchange="switchlayer(['landkreise-fill', 'landkreise-line'], 'landkreise')" />
+				<label for="landkreise">Landkreise</label>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="gemeinden" value="gemeinden" onchange="switchlayer(['gemeinden-fill', 'gemeinden-line'], 'gemeinden')" />
+				<label for="gemeinden">Gemeinden</label>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="untersuchungsgebiet" value="untersuchungsgebiet" onchange="switchlayer(['untersuchungsgebiet-line'], 'untersuchungsgebiet')" />
+				<label for="untersuchungsgebiet">Untersuchungsgebiet</label>
+			</div>
+		  </div>
+
+		  </div>
+	  </div>
+	  <div id="sidebar" class="sidebar">
+		  <div class="tab-container">
+			  <div class="tab" id="tab-bottlenecks">Problemstellen
+				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" checked autocomplete="off">
+			  </div>
+			  <div class="tab active" id="tab-measures"style="left: -1px">Ma&szlig;nahmen
+				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" checked autocomplete="off">
+			  </div>
+			  <div class="tab" id="tab-strategies"style="left: -2px">Strategien
+				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" autocomplete="off">
+			  </div>
+		  </div> 
+		  <div class="tab-body" id="measures"></div>
+		  <div class="tab-body" id="bottlenecks"></div>
+		  <div class="tab-body" id="strategies"></div>
+
+	  </div>  
+	</div>
+  
+	<template id="template">
+		<div class="sidebar-entry">
+		<header>
+			<div class="headline">Überschrift</div>		
+		</header>
+		<div class="image-container"><img class="sidebar-image" loading="lazy" src=""  alt = ""></div>
+		<div class="description" lang="de">Beschreibung</div>
+		<!-- <div class="tartlink"><a class="cartlink" href="">In den Warenkorb</a></div> -->
+		</div>
+	</template>
+	
+	<template id="category-group-template">
+		<div class="category-group" data-category="Some Category">
+			<div class="category" style="font-weight: bold;">
+				<div id="category-text"></div>
+				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" checked>
+			</div>
+		</div>
+	</template>
+
+<script type="module">
+    const map = new maplibregl.Map({
+        container: 'map',
+        style:'basemap-de-style-a06ceb84.json', // style URL
+		//style: 'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json',
+		maxZoom: 15.99,
+		preserveDrawingBuffer: true,
+	
+    });
+	map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-left');
+
+	const data_bottlenecks = await (await fetch('data/geojson/problemstellen.geojson')).json();
+	const data_measures =  await (await fetch('data/geojson/data.geojson')).json();
+
+	const img_route = 'data/images/'
+	const icon_route = 'data/icons/'
+
+	let cursorOnMarker = false;
+
+	let bbox =  turf.bbox(data_bottlenecks);
+	map.fitBounds(bbox, { duration: 0, padding: 64 })
+	document.getElementById('button-fit').addEventListener('click', () => {
+		map.fitBounds(bbox, { pitch: 0, padding: 64, });
+	});
+
+
+
+    map.on('load', async () => {
+
+
+		prepareUI();
+		await loadBottlenecks(); // Load Sidebar entries for the bottlenecks
+		await loadMeasures();
+		await addTraffic();
+
+
+		loadStrategies();
+		addArea();
+		addcommunities();
+		addCounties();
+		addMapSourceAndLayers();
+		handleMapClicks();
+		handleHovering();
+
+
+		
+	});
+
+	map.on('style.load', async () => {
+		
+		//await addOtherLayers();
+
+		//await addMapSourceAndLayers();
+		//filterBottlenecks();
+
+
+
+	});
+
+	async function addArea()
+	{
+		map.addSource('untersuchungsgebiet', {
+            type: 'geojson',
+            // Use a URL for the value for the `data` property.
+            data: 'data/geojson/area.geojson',
+			//generateId: true // This ensures that all features have unique IDs
+        });
+
+        map.addLayer({
+            'id': 'untersuchungsgebiet-line',
+            'type': 'line',
+            'source': 'untersuchungsgebiet',
+			'layout': {
+				'visibility': 'none',
+			},
+            'paint': {
+                'line-color': '#00AAAAAA',
+                'line-width': 4,
+            }
+        });
+
+		console.log("added untersuchungsgebiet...")
+	}
+
+	async function addcommunities()
+	{
+		map.addSource('gemeinden', {
+            type: 'geojson',
+            // Use a URL for the value for the `data` property.
+            data: 'data/geojson/gemeinden.geojson',
+			generateId: true // This ensures that all features have unique IDs
+        });
+
+		map.addLayer({
+            'id': 'gemeinden-fill',
+            'type': 'fill',
+            'source': 'gemeinden',
+            'layout': {
+				'visibility': 'none',
+			},
+            'paint': {
+                'fill-color': '#00AA00',
+                'fill-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    0.1,
+                    0.0
+                ]
+            }
+        });
+
+        map.addLayer({
+            'id': 'gemeinden-line',
+            'type': 'line',
+            'source': 'gemeinden',
+			'layout': {
+				'visibility': 'none',
+			},
+            'paint': {
+                'line-color': '#00AA00',
+                'line-width': 1.25,
+				'line-dasharray': [3,3]
+            }
+        });
+		console.log("added gemeinden...")
+	}
+
+	async function addCounties()
+	{
+		map.addSource('landkreise', {
+            type: 'geojson',
+            // Use a URL for the value for the `data` property.
+            data: 'data/geojson/landkreise.geojson',
+			generateId: true // This ensures that all features have unique IDs
+        });
+
+		map.addLayer({
+            'id': 'landkreise-fill',
+            'type': 'fill',
+            'source': 'landkreise',
+            'layout': {
+				'visibility': 'none',
+			},
+            'paint': {
+                'fill-color': '#0000AA',
+                'fill-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    0.1,
+                    0.0
+                ]
+            }
+        });
+
+        map.addLayer({
+            'id': 'landkreise-line',
+            'type': 'line',
+            'source': 'landkreise',
+			'layout': {
+				'visibility': 'none',
+			},
+            'paint': {
+                'line-color': '#0000AA',
+                'line-width': 1.25,
+				'line-dasharray': [3,3]
+            }
+        });
+
+		console.log("added landkreise...")
+	}
+
+
+
+
+
+	async function addTraffic(){
+		console.log("Adding layer traffic")
+
+		map.addSource('traffic-flow-source', {
+            type: 'vector',
+            tiles: [
+            atob('aHR0cHM6Ly90cmFmZmljLnZlY3Rvci5oZXJlYXBpLmNvbS92Mi90cmFmZmljdGlsZXMvZmxvdy9tYy97en0ve3h9L3t5fS9vbXY/YXBpS2V5PU9OTkEwVlVwVXhBYXhfS1BtREhUNF9pWVFlbUtnaXRMX01lV1Y2eHBBVkE=') ,
+            ],
+        });
+
+		console.log($("#traffic").prop("checked"));
+
+		let visibility = "none";
+		if($("#traffic").prop("checked"))
+			visibility = "visible"
+		map.addLayer(
+            {
+                "id": "traffic",
+                "type": "line",
+                "source": "traffic-flow-source",
+				"source-layer": "traffic_flow", 
+                "paint": {
+                  "line-color": [
+                    "case",
+                    ["<", ["get", "congestion"], 0.25], "#00FF00",
+                    ["<", ["get", "congestion"], 0.5], "#FFFF00",
+                    ["<", ["get", "congestion"], 0.75], "#FFA500",
+                    "#FF0000"
+                  ],
+                  "line-width": 3,
+				  "line-offset" : 2,
+                },
+				"layout" : {
+					"visibility": visibility,
+				}
+            }
+        );
+	}
+
+	async function loadBottlenecks() {
+		console.log("loading bottlenecks");
+
+		// reverse the line direction, so that the arrowhead symbol is placed at the correct end.
+		// Calculate the rotation of the last line segment so that the arrowhead can be rotated accordingly
+		// add sidebar entry for the bottleneck
+		for (let i = 0; i < data_bottlenecks.features.length; i++) {
+			let feature = data_bottlenecks.features[i];
+			if(!feature.geometry.coordinates[0]) {
+				console.log("Bottleneck " + i + " had an invalid geometry. Not adding sidebar-entry.");
+				continue;
+			}
+			data_bottlenecks.features[i] = reverse(data_bottlenecks.features[i]);
+			data_bottlenecks.features[i].properties.rotation = 90 + turf.bearing(data_bottlenecks.features[i].geometry.coordinates[0][0], data_bottlenecks.features[i].geometry.coordinates[0][1]);	
+			
+			// Create and return a category group, but only if it not already exists
+			let catGroup = CreateCategoryGroup(feature.properties.Situation);
+			if(catGroup) 
+			{		
+				catGroup.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
+					event.stopPropagation();
+					filterBottlenecks(event);
+					//$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category])
+				}); 
+				document.querySelector("#bottlenecks").append(catGroup);
+			}
+			
+			
+			// ----------------- Add Sidebar entry --------------------------
+			// add Sidebar entry
+			let clone =  document.querySelector("#template").content.cloneNode(true);
+
+			// Check if image exists
+			let image_name = null;
+			if(feature.properties.image)
+				image_name = feature.properties.image;
+			let id = feature.properties.Situation.replaceAll(' ', '') + '-' + i
+
+			let file = await fetch(img_route + image_name)
+			if (file.status === 404) {
+				if (image_name != null) console.log('Image ' + image_name + ' not found.');
+				clone.querySelector(".image-container").style.paddingBottom = 0;
+				clone.querySelector(".image-container").style.height = 0;
+			}
+			else {
+				clone.querySelector(".sidebar-image").src = img_route + image_name;
+				//clone.querySelector(".banner").alt = feature.properties.image;
+			}
+			if(feature.properties.headline) 
+				clone.querySelector(".headline").textContent = feature.properties.headline;
+			//clone.querySelector(".cartlink").href = "www.example.com";
+			if(feature.properties.description)
+				clone.querySelector(".description").textContent = feature.properties.description;
+			clone.querySelector(".sidebar-entry").id = id;
+
+			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
+				this.style.backgroundColor = 'rgb(240,248,255)';
+				map.setFeatureState({source: 'source-problemstellen', id: i}, {hover: true});
+				// make hover true
+				
+			});
+			clone.querySelector(".sidebar-entry").addEventListener('mouseout', function() {
+				this.style.backgroundColor = '';
+				map.setFeatureState({source: 'source-problemstellen', id: i}, {hover: false});
+				// make hover false
+			}); 
+
+			let bearing = Math.floor(Math.random() * 360);
+			let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
+			let pitch = 10 + Math.floor(Math.random() * 60);
+			clone.querySelector(".sidebar-entry").addEventListener('click', function(event) {
+				//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
+				event.stopPropagation();	
+				let params = {
+					bearing: bearing,
+					center: data_bottlenecks.features[i].geometry.coordinates[0][0],
+					zoom: zoom,
+					pitch: pitch,
+					speed: 0.5,
+				}
+				if(event.target.closest(".category-group").querySelector("#visibility-checkbox").checked == true)
+				{	
+					console.log("I fly to point");
+					map.flyTo(params)
+				}
+				else
+				{
+					console.log("I fly do NOT fly to point");
+				}
+			});  
+
+			// add entry to the category-group inside the sidebar and collapse the entry
+			document.querySelector(`[data-category="${feature.properties.Situation}"]`).appendChild(clone);
+			$(document.getElementById(id)).slideUp(0);
+	  	}
+
+		let problemstelleID = null;		
+		map.on('mousemove', 'layer-problemstellen-fill', (event) => {
+			map.getCanvas().style.cursor = 'pointer';
+			if (event.features.length === 0) return;
+			// When the mouse moves over the layer, update the
+			// feature state for the feature under the mouse
+			if (problemstelleID != null) {
+				map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: false});
+			}
+			problemstelleID = event.features[0].id;
+			map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: true});
+        });
+        map.on('mouseleave', 'layer-problemstellen-fill', () => {
+			map.getCanvas().style.cursor = '';
+			// When the mouse leaves the layer layer, update the
+        	// feature state of the previously hovered feature
+        	if (problemstelleID != null) {
+        		map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: false});
+        	}
+          	problemstelleID = null;          	
+        });
+	}
+
+	async function addMapSourceAndLayers(){
+		console.log("Adding Source and layers");
+		map.addSource('source-problemstellen', {
+			data: data_bottlenecks,
+			type: 'geojson',
+			generateId: true // This ensures that all features have unique IDs
+		});
+
+		let arrowthickness = 6;
+		let strokeopacity = 0.9;
+		let offset = -4;
+		let outlineColor = 'white'
+		let colorrule = [
+			'match', ['get','Situation'],
+				'Baustelle', 'hsla(51, 90%, 55%, 1)',
+				'Morgenspitze', '#e67c0a',
+				'Abendspitze','#086dba',
+				'Morgenspitze & Abendspitze' , '#db6b9f',
+				'Unfall','red',
+				'black'
+		];
+
+		// for(let color of colorrule)
+		// {
+		// 	console.log(colorrule);
+		// }
+		// SVG for the arrow head (a simple triangle)
+		const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+						<polygon points="0, 0, 90, 50, 0, 100" fill="${outlineColor}" />
+                    </svg>`;
+		// Convert SVG to Data URL
+		const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(svg);
+		// load the svg arrow using a custom function that supports the await
+		let img = await loadImage(svgDataUrl);
+		map.addImage('arrow-white', img);
+		let img1 = await map.loadImage("data/images/arrow.png");
+		let img2 = await map.loadImage("data/images/arrow-big.png");
+		map.addImage('arrow-sdf', img1.data,  { sdf: true });
+		map.addImage('arrow-big-sdf', img2.data,  { sdf: true });
+		
+		// add 4 layers: line stroke, arrow-stroke, line-fill and arrow-fill
+		map.addLayer({
+            'id': 'layer-problemstellen-stroke',
+            'type': 'line',
+            'source': 'source-problemstellen',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round',
+            },
+            'paint': {
+				'line-blur': 15,
+				'line-offset': offset,
+                'line-color': 'black',
+				'line-opacity': strokeopacity,
+                'line-width': 
+				[
+					'case', ['boolean', ['feature-state', 'hover'], false],
+					arrowthickness * 2 * 1.5,
+					arrowthickness * 2,
+				],
+            },
+        });
+		map.addLayer({
+            'id': 'layer-problemstellen-arrow-stroke',
+            'type': 'symbol',
+            'source': 'source-problemstellen',
+			'symbol-z-order': 'viewport_y',
+			'paint': {
+              //'icon-color': '#FBFBFB', // color is determined by the SVG. We don't use SDF, because it has no antialiasing
+			  'icon-opacity': strokeopacity,
+			  'icon-color': 'rgba(0,0,0,0)',
+			  'icon-halo-width': 1,
+				'icon-halo-blur': 8,
+				'icon-halo-color': 'rgba(0,0,0,0.25)',
+			},
+			'layout': {
+				'icon-offset':[4* (1/1.75) * 1.1, -offset * (1/1.75)],
+				'icon-image': 'arrow-big-sdf',
+				'symbol-placement': 'point',
+				'symbol-spacing': 1,
+				'icon-size':1.75,
+				'icon-pitch-alignment': "map",
+				'icon-rotation-alignment': "map",
+				'icon-rotate': ['get', 'rotation'],
+				'icon-allow-overlap': true,
+   			}
+        }); 
+
+		map.addLayer({
+            'id': 'layer-problemstellen-arrow-fill',
+            'type': 'symbol',
+            'source': 'source-problemstellen',
+			'symbol-z-order': 'viewport_y',
+			'paint': {
+              	'icon-color': colorrule,
+			},
+			'layout': {
+				'icon-offset': [4 * (1/0.6), -offset * (1/0.6)],
+				'icon-image': 'arrow-sdf',
+				'symbol-placement': 'point',
+				'symbol-spacing': 1,
+				'icon-size':0.6,
+				//'icon-size':  ['get', 'iconsize'],
+				'icon-pitch-alignment': "map",
+				'icon-rotation-alignment': "map",
+				'icon-rotate': ['get', 'rotation'],
+				'icon-allow-overlap': true,
+   			}
+        }); 
+
+		map.addLayer({
+            'id': 'layer-problemstellen-fill',
+            'type': 'line',
+            'source': 'source-problemstellen',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round',
+            },
+            'paint': {
+				'line-offset': offset,
+                'line-color': colorrule,
+				//NOT SUPPORTED :(
+				//'line-border-width':1,
+                'line-width': [
+					'case', ['boolean', ['feature-state', 'hover'], false],
+					arrowthickness * 1.5,
+					arrowthickness,
+				],
+            },
+        });
+
+	}
+
+	async function loadMeasures() {
+		console.log("loading measures");
+
+
+
+		// parse json. Fill map with markers, and sidebar with entries.
+		for (let i = 0; i < data_measures.features.length; i++) {
+			let feature = data_measures.features[i];
+			
+			// Check if Icon exists
+			let icon_name = feature.properties.category;
+			let r = await fetch(icon_route + icon_name + '.svg')
+			if (r.status === 404) {
+				console.log('Icon ' + icon_name + ' not found. Loading default icon for feature ' + i + '.');
+				r = await fetch(icon_route + 'default.svg')
+				icon_name = "default"
+				if (r.status === 404) {
+					console.log("Default icon " + icon_route + 'default.svg not found! Not creating measure ' + i);
+					continue;
+				}
+				
+			}
+
+			// Check if geometry is valid
+			if (!(feature.geometry && feature.geometry.coordinates)) {
+				console.log("Geometry of feature " + i + " was invalid! Not creating feature.");
+				continue;
+			}
+
+			// Check for category
+			let catGroup = document.querySelector("#category-group-template").content.cloneNode(true);
+			if(!document.querySelector(`[data-category="${feature.properties.category}"]`)) {
+				catGroup.querySelector("#category-text").textContent = feature.properties.category;
+				catGroup.querySelector(".category-group").dataset.category = feature.properties.category;
+				
+				let cat = catGroup.querySelector(".category")
+				cat.addEventListener('click',     (event) => { $(`[data-category="${feature.properties.category}"]`).find('.sidebar-entry').slideToggle() });
+				cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = 'rgb(240,248,255)'; });
+				cat.addEventListener('mouseout',  (event) => { cat.style.backgroundColor = ''; }); 
+				
+
+				// if maßnahme
+				cat.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
+					event.stopPropagation();
+					$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category, event.target.checked])
+				}); 
+
+				document.querySelector("#measures").append(catGroup);
+
+				// if problemstelle
+
+			}
+
+			// create a DOM element for the marker
+			const el = document.createElement('div');
+			el.classList.add('marker');
+			el.style.backgroundImage = `url(${encodeURI(icon_route + icon_name + '.svg')})`;
+			el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
+			el.dataset.iconcategory = feature.properties.category;
+			let markerId = "measure-" + i
+			el.id = markerId;
+
+			// togglevisibility is called by the checkboxes in the sidebar on the markers. if the marker has the correct category, hide it!
+			$(el).on("togglevisibility", function( event, keyAttribute, checked ) {
+				
+				if((el.dataset.iconcategory == keyAttribute))
+				{
+					if(checked)
+					{
+						if($('#tab-measures :input[type="checkbox"]').prop('checked'))
+						$(el).show();
+					}
+					else
+						$(el).hide();
+				}
+				else if ((el.id == keyAttribute))
+				{
+					if(checked)
+					{
+						if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
+						$(el).show();
+					}
+					else
+						$(el).hide();		
+				}
+			})
+
+			$(el).on("evaluateVisibility", function() {
+				
+				if($('#tab-measures :input[type="checkbox"]').prop('checked'))
+				{
+					// check the category group of the icons category and set visibility accordingly
+				}
+				else if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
+				{}
+					
+			})
+
+			el.addEventListener('click', (e) => {
+				e.stopPropagation();
+				console.log("Clicking tab-measures");
+				$("#tab-measures").click();
+				let sidebarEntry = document.getElementById("measure-entry-" + i)
+				scrollSidebarToEntry(sidebarEntry);		
+			});
+
+
+			el.addEventListener('mouseover', function(e) {
+				console.log("we hovered over a marker")
+				cursorOnMarker = true;
+				e.stopPropagation();
+				let sidebarEntry = document.getElementById("measure-entry-" + i)
+				sidebarEntry.dispatchEvent(new Event('mouseover'));
+			});
+
+			el.addEventListener('mouseout', function() {
+				cursorOnMarker = false;
+				let sidebarEntry = document.getElementById("measure-entry-" + i)
+				sidebarEntry.dispatchEvent(new Event('mouseout'));
+			}); 
+
+			// add marker to map
+			new maplibregl.Marker({element: el, anchor: 'bottom'})
+				.setLngLat(feature.geometry.coordinates[0])
+				.addTo(map);
+
+			// add Sidebar entry
+			let clone =  document.querySelector("#template").content.cloneNode(true);
+
+			// Check if image exists
+			let image_name = feature.properties.image;
+			let file = await fetch(img_route + image_name)
+			if (file.status === 404) {
+				if (image_name != null) console.log('Image ' + image_name + ' not found.');
+				clone.querySelector(".image-container").style.paddingBottom = 0;
+				clone.querySelector(".image-container").style.height = 0;
+			}
+			else {
+				clone.querySelector(".sidebar-image").src = img_route + image_name;
+				//clone.querySelector(".banner").alt = feature.properties.image;
+			}
+			clone.querySelector(".headline").textContent = feature.properties.id + ": " + feature.properties.headline;
+			//clone.querySelector(".cartlink").href = "www.example.com";
+			clone.querySelector(".description").textContent = feature.properties.description;
+			clone.querySelector(".sidebar-entry").id = "measure-entry-"  + i;
+
+			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
+				this.style.backgroundColor = 'rgb(240,248,255)';
+				el.style.width = `80px`;
+				el.style.height = `80px`;
+				
+			});
+			clone.querySelector(".sidebar-entry").addEventListener('mouseout', function() {
+				this.style.backgroundColor = '';
+				el.style.width = `64px`;
+				el.style.height = `64px`;
+			}); 
+
+			let bearing = Math.floor(Math.random() * 360);
+			let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
+			let pitch = 10 + Math.floor(Math.random() * 60);
+			clone.querySelector(".sidebar-entry").addEventListener('click', function(event) {
+				//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
+				event.stopPropagation();	
+				let params = {
+					bearing: bearing,
+					center: feature.geometry.coordinates[0],
+					zoom: zoom,
+					pitch: pitch,
+					speed: 0.5,
+				}
+				if($('#measure-' + i).is(':visible'))
+				{	
+					
+					
+					console.log("I fly to point");
+					map.flyTo(params)
+				}
+				else
+				{
+					console.log("I fly do NOT fly to point");
+				}
+			});  
+
+			// add entry to the category-group inside the sidebar and collapse the entry
+			document.querySelector(`[data-category="${feature.properties.category}"]`).appendChild(clone);
+			$(document.getElementById("measure-entry-" + i)).slideUp(0);
+		}
+	};
+
+	async function loadStrategies() {
+		for (let i = 0; i < data_bottlenecks.features.length; i++) {
+			let feature = data_bottlenecks.features[i];
+			if(!feature.geometry.coordinates[0]) {
+				console.log("Feature " + i + " had an invalid geometry. Not adding strategy-sidebar-entry.");
+				continue;
+			}
+			let strategy = feature.properties.strategy;
+
+			let strat = CreateCategoryGroup(strategy)
+			if(strat)
+			{		
+				strat.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
+				event.stopPropagation();
+				filterBottlenecks(event);
+					//$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category])
+				}); 
+				strat.querySelector("#visibility-checkbox").checked = false;
+				if (i == 0)
+					strat.querySelector("#visibility-checkbox").checked = true;
+			}
+
+
+			strat.querySelector(".category-group").id = "strategy-entry-" + i
+			strat.querySelector("#category-text").textContent = "Strategie " + (i+1) ;
+			document.querySelector("#strategies").append(strat);
+
+
+			for (let m = 0; m < data_measures.features.length; m++) {
+
+				if(data_measures.features[m].properties.strategy)
+				if(data_measures.features[m].properties.strategy == i+1)
+				{
+					let entryCloneID = "measure-entry-"  + m;
+					console.log("strategy " + i + " contains measure " + m);
+					console.log("Copying DOM Elelent #" + entryCloneID)
+					let clone = document.getElementById(entryCloneID).cloneNode(true)
+					clone.id = "strategy-" + i + "-measure-entry-"  + m
+
+					console.log(clone);
+					console.log("appending " + clone + " to element strategy-entry-" + i)
+					document.getElementById("strategy-entry-" + i).append(clone);
+					$(document.getElementById("strategy-" + i + "-measure-entry-"  + m)).slideUp(0);
+
+					// add hiding of the marker if the category-group is clicked:
+					document.getElementById("strategy-entry-" + i).querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
+					event.stopPropagation();
+					$(".maplibregl-marker").trigger("togglevisibility", ["measure-" + m, event.target.checked])
+					$(".maplibregl-marker").trigger("evaluateVisibility")
+				}); 
+
+
+				}	
+
+			}
+
+
+		}
+	}
+
+	function prepareUI(){
+		console.log("preparing UI");
+		$(".tab").click(openTab); // adds the Tab clicking functionality
+		$("#bottlenecks").toggle(); // hides the bottlenecks div in the sidebar.
+		$("#strategies").toggle(); // hides the strategies div in the sidebar.
+		$("#tab-measures > #visibility-checkbox").css("margin-right", "14px");
+
+		$("#tab-bottlenecks > #visibility-checkbox").on('click',  (event) => {		
+			if($(event.target).prop('checked'))
+			{
+				if ($("#tab-strategies > #visibility-checkbox").prop('checked'))
+					$("#tab-strategies > #visibility-checkbox").click()
+			}
+			// event.stopPropagation();
+			toggleBottleneckLayer();
+		}); 
+
+		$("#tab-measures > #visibility-checkbox").on('click',  (event) => {
+			if($(event.target).prop('checked'))
+			{
+				if ($("#tab-strategies > #visibility-checkbox").prop('checked'))
+					$("#tab-strategies > #visibility-checkbox").click()
+			}
+
+			// event.stopPropagation();
+			toggleMeasuresLayer();
+		}); 
+
+		$("#tab-strategies > #visibility-checkbox").on('click',  (event) => {
+			// deactivate tab measures and bottlenecks if turned on
+			if($(event.target).prop('checked'))
+			{
+				if ($("#tab-bottlenecks > #visibility-checkbox").prop('checked'))
+					$("#tab-bottlenecks > #visibility-checkbox").click()
+				if ($("#tab-measures > #visibility-checkbox").prop('checked'))
+					$("#tab-measures > #visibility-checkbox").click()
+			}
+			// event.stopPropagation();
+			toggleStrategiesLayer();
+
+		}); 
+
+		// initiate styles dropdown
+		document.getElementById("styles").selectedIndex = 0;
+		document.getElementById("styles").addEventListener("change", function (event) {
+			const styleId = event.target.value;
+			map.setStyle(styleId, {diff: false});
+        });
+
+	}
+
+	function openTab(evt) {
+		if(evt.target.closest(".tab").className != "tab active") // if the tab clicked is not the currently active one...
+		{
+			$(".tab").removeClass("active"); // set clicked tab active
+			$(evt.target.closest(".tab")).addClass("active")
+			$("#measures").hide(); // switch measures and bottlenecks visibility
+			$("#bottlenecks").hide();
+			$("#strategies").hide();
+
+			switch($(evt.target.closest(".tab")).attr('id')) {
+				case "tab-measures":
+					$("#measures").show();
+					break;
+				case "tab-bottlenecks":
+					$("#bottlenecks").show();
+					break;
+				case "tab-strategies":
+					$("#strategies").show();
+					break;
+				default:
+					console.log("Unreachable: " + $(evt.target.closest(".tab")).attr('id'));
+				} 
+		}
+	}
+
+	function scrollSidebarToEntry(sidebarEntry){
+		$('.tab-body').clearQueue()
+		$('.sidebarEntry').clearQueue()
+		// Slide down the entries, then scroll the sidebar to the correct position
+		// keep track wether all entries have completed sliding open, before scrolling the sidebar
+		var sidebarEntries = $(sidebarEntry).parent().children()
+		var entriesCompleted = 0;
+		sidebarEntries.slideDown(400 , () => {
+			entriesCompleted++;					
+			if (entriesCompleted === sidebarEntries.length) {
+				$('.tab-body').animate({scrollTop: sidebarEntry.offsetTop + sidebarEntry.offsetParent.offsetTop - 72}, 1500);
+			}
+		});
+	}
+
+	function loadImage(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image(100, 100);
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+
+	function CreateCategoryGroup(keyAtrrribute) {
+			let catGroup = document.querySelector("#category-group-template").content.cloneNode(true);
+			if(!document.querySelector(`[data-category="${keyAtrrribute}"]`)) {
+				catGroup.querySelector("#category-text").textContent = keyAtrrribute;
+				catGroup.querySelector(".category-group").dataset.category = keyAtrrribute;
+				
+				let cat = catGroup.querySelector(".category")
+				cat.addEventListener('click',     (event) => { $(`[data-category="${keyAtrrribute}"]`).find('.sidebar-entry').slideToggle() });
+				cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = 'rgb(240,248,255)'; });
+				cat.addEventListener('mouseout',  (event) => { cat.style.backgroundColor = ''; }); 
+				return catGroup;
+			}
+			else return null;
+	}
+
+	function filterBottlenecks() {
+
+		let filter
+		if($('#tab-bottlenecks :input[type="checkbox"]').prop('checked'))
+		{
+			let key = $("#bottlenecks").find("input[type='checkbox']:checked").closest(".category-group").map(function() {return $(this).data("category");}).get();
+			filter = ["any", ...key.map(situation => ["==", situation, ["get", "Situation"]])];
+		}
+		else
+		if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
+		{
+			let key = $("#strategies").find("input[type='checkbox']:checked").closest(".category-group").map(function() {return $(this).data("category");}).get();
+			filter = ["any", ...key.map(id => ["==", id, ["get", "id"]])];
+		}
+		else
+		{
+			filter = ["any", ["==", "NONE", ["get", "Situation"]]]
+		}
+		
+		console.log(filter);
+		map.setFilter(['layer-problemstellen-stroke'], filter);
+		map.setFilter(['layer-problemstellen-arrow-stroke'], filter);
+		map.setFilter(['layer-problemstellen-fill'], filter);
+		map.setFilter(['layer-problemstellen-arrow-fill'], filter);
+	}
+
+	function toggleBottleneckLayer() {
+
+		let main = $('#tab-bottlenecks :input[type="checkbox"]');
+		let isChecked = main.prop('checked');
+		if (isChecked)
+		{
+			main.parent().parent().siblings("#bottlenecks").find('input:checkbox:not(:checked)').trigger('click');
+		}
+		else
+		{
+			main.parent().parent().siblings("#bottlenecks").find('input:checkbox:checked').trigger('click');
+		}
+	}
+
+	function toggleMeasuresLayer() {
+		let main = $('#tab-measures :input[type="checkbox"]');
+		let isChecked = main.prop('checked');
+		if (isChecked)
+		{
+			main.parent().parent().siblings("#measures").find('input:checkbox:not(:checked)').trigger('click');
+		}
+		else
+		{
+			main.parent().parent().siblings("#measures").find('input:checkbox:checked').trigger('click');
+		}
+	}
+
+	function toggleStrategiesLayer() {
+		let main = $('#tab-strategies :input[type="checkbox"]');
+		let isChecked = main.prop('checked');
+		if (isChecked)
+		{
+			// uncheck all
+			main.parent().parent().siblings("#strategies").find('input:checkbox:checked').trigger('click');
+
+			//Check only first 
+			console.log(main.parent().parent().siblings("#strategies").find('input:checkbox')[0].click())
+		}
+		else
+		{
+			main.parent().parent().siblings("#strategies").find('input:checkbox:checked').trigger('click');
+		}
+	}
+
+	window.switchlayer = switchlayer;
+	function switchlayer (layers, checkboxId) {
+	for(var layer of layers)
+	{
+		console.log("Switching");
+            if (document.getElementById(checkboxId).checked) {
+                map.setLayoutProperty(layer, 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty(layer, 'visibility', 'none');
+           }
+		}
+        }
+
+	$('#generate-btn').click(function() {
+		console.log("printing...");
+		Print()
+  }); 
+
+  function Print() {
+		let format = 'png'
+        if (format == 'png') {
+			console.log("rendering");
+
+		html2canvas(document.getElementById('map'), 
+		{
+			ignoreElements: function( element ) {			
+				if( 'map-buttons-container' == element.id ) {
+					return true;
+				}		
+			}
+		})
+		.then(function(canvas) {
+			canvas.toBlob(function(blob) {
+                saveAs(blob, 'map.png');
+            });;
+		});
+
+        } else {
+            var pdf = new jsPDF({
+                orientation: width > height ? 'l' : 'p',
+                unit: unit,
+                format: [width, height],
+                compress: true
+            });
+
+            pdf.addImage(renderMap.getCanvas().toDataURL('image/png'),
+                'png', 0, 0, width, height, null, 'FAST');
+
+            var title = map.getStyle().name,
+                subject = "center: [" + form.lonInput.value  + ", " + form.latInput.value + ", " + form.zoomInput.value + "]",
+                attribution = '(c) ' +
+                    (form.styleSelect.value.indexOf('mapbox') >= 0 ? 'Mapbox' : 'Stadia Maps') +
+                    ', (c) OpenStreetMap';
+
+            pdf.setProperties({
+                title: title,
+                subject: subject,
+                creator: 'Print Maps',
+                author: attribution
+            })
+            pdf.save('map.pdf');
+        }
+}
+
+function handleMapClicks(){
+	map.on('click', (e) => { // topmost layer
+		const features = map.queryRenderedFeatures(e.point);
+		// If no features are found, return early
+		if (features.length == 0)
+			return;
+		
+		const topmostFeature = features[0];
+		const layerId = topmostFeature.layer.id;
+		console.log("Clicked " + layerId);
+
+		switch(layerId) {
+			case 'landkreise-fill':
+			case 'gemeinden-fill':
+
+				let txt = ''
+				Object.keys(topmostFeature.properties).forEach(function(key) {
+					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
+				})
+				console.log(e.lngLat)
+
+					//.setLngLat(turf.center(topmostFeature).geometry.coordinates)
+					    // Get the clicked point
+				var clickedPoint = e.lngLat;			
+				// Convert clicked geographical coordinates to screen coordinates
+				var clickedPointPixels = map.project(clickedPoint);			
+				// Apply the pixel offset (move 50 pixels up)
+				var offsetPixels = new maplibregl.Point(clickedPointPixels.x, clickedPointPixels.y - 20);
+				
+				// Convert the new screen coordinates back to geographical coordinates
+				var newLngLat = map.unproject(offsetPixels);
+
+				new maplibregl.Popup()	
+					.setLngLat(newLngLat)
+					.setHTML(txt)
+					.addTo(map)
+
+				break;
+
+			case 'layer-problemstellen-fill':
+				console.log("Problemstelle angeklickt");
+				break;
+			default:
+				console.log("Anderer layer angeklickt");
+		} 
+});
+}
+
+function handleHovering(){
+	let hoveredFeatureId = null;
+let lastHoveredFeatureId = null;
+let lastHoveredLayerId = null;
+let lastHoveredFeature = null;
+
+let currentFeature = null;
+let currentLayerId = null;
+
+        map.on('mousemove', (e) => {		
+			const features = map.queryRenderedFeatures(e.point);
+
+			if (features.length == 0)
+				return;
+
+			currentFeature = features[0];
+			currentLayerId = currentFeature.layer.id;
+			for(let i = 0; i<3; i++)
+			{
+				if(!(["gemeinden-fill", "landkreise-fill", "layer-problemstellen-fill"].includes(currentLayerId)))
+				{
+					if(features[i+1])
+					{
+					currentFeature = features[i+1]
+					currentLayerId = currentFeature.layer.id;
+					}
+
+				}
+				else break;
+				if(i >= 2)
+				{
+					if(lastHoveredFeature)
+					map.setFeatureState(
+							{source: lastHoveredFeature.source, id: lastHoveredFeatureId},
+							{hover: false}
+						);
+						return;
+				}
+			}
+
+			
+			let currentFeatureId = currentFeature.id;
+			
+
+
+			if(lastHoveredFeature)
+			map.setFeatureState(
+							{source: lastHoveredFeature.source, id: lastHoveredFeatureId},
+							{hover: false}
+						);
+			if(!cursorOnMarker)
+			map.setFeatureState(
+							{source: currentFeature.source, id: currentFeatureId},
+							{hover: true}
+						);
+
+			lastHoveredFeatureId = currentFeatureId;
+			lastHoveredLayerId = currentLayerId;
+			lastHoveredFeature = currentFeature;
+
+		});
+		map.on('mouseleave', 'landkreise-fill', () => {
+            if (lastHoveredFeatureId) {
+                map.setFeatureState(
+                    {source: lastHoveredFeature.source, id: lastHoveredFeatureId},
+                    {hover: false}
+                );
+            }
+            hoveredFeatureId = null;
+        });
+
+		map.on('mouseleave', 'gemeinden-fill', () => {
+            if (lastHoveredFeatureId) {
+                map.setFeatureState(
+                    {source: lastHoveredFeature.source, id: lastHoveredFeatureId},
+                    {hover: false}
+                );
+            }
+            hoveredFeatureId = null;
+        });
+
+
+}
+
+const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+</script>
+</body>
+</html>
