@@ -3,7 +3,7 @@
 <head>
 
 <title>VM Map</title>
-<meta charset='utf-8'>
+<meta charset="UTF-8">
 
 <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css' />
 <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
@@ -282,7 +282,7 @@ html {
 	<template id="template">
 		<div class="sidebar-entry">
 		<header>
-			<div class="headline">Überschrift</div>		
+			<div class="headline">Überschrift</div>		 
 		</header>
 		<div class="image-container"><img class="sidebar-image" loading="lazy" src=""  alt = ""></div>
 		<div class="description" lang="de">Beschreibung</div>
@@ -331,15 +331,16 @@ html {
 
 		prepareUI();
 		await loadBottlenecks(); // Load Sidebar entries for the bottlenecks
-		await loadMeasures();
-		await addTraffic();
+		await loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
+
 
 
 		loadStrategies();
-		addArea();
-		addcommunities();
-		addCounties();
-		addMapSourceAndLayers();
+		addArea(); // Adds Untersuchungsgebiet layer
+		addcommunities(); // Adds Communities layer
+		addCounties(); // Adds Counties Layer
+		addTraffic(); // Adds realtime traffic layer to map.
+		addBottlenecks(); // Adds bottlenecks layer to the map.
 		handleMapClicks();
 		handleHovering();
 
@@ -349,11 +350,16 @@ html {
 
 	map.on('style.load', async () => {
 		
+		await addTraffic();
+
 		//await addOtherLayers();
 
-		//await addMapSourceAndLayers();
+		//await addBottlenecks();
 		//filterBottlenecks();
-
+		addArea();
+		addcommunities();
+		addCounties();
+		addBottlenecks();
 
 
 	});
@@ -470,10 +476,6 @@ html {
 		console.log("added landkreise...")
 	}
 
-
-
-
-
 	async function addTraffic(){
 		console.log("Adding layer traffic")
 
@@ -561,8 +563,8 @@ html {
 				clone.querySelector(".sidebar-image").src = img_route + image_name;
 				//clone.querySelector(".banner").alt = feature.properties.image;
 			}
-			if(feature.properties.headline) 
-				clone.querySelector(".headline").textContent = feature.properties.headline;
+			if(feature.properties.headline && feature.properties.pid) 
+				clone.querySelector(".headline").textContent = feature.properties.pid + ": " + feature.properties.headline;
 			//clone.querySelector(".cartlink").href = "www.example.com";
 			if(feature.properties.description)
 				clone.querySelector(".description").textContent = feature.properties.description;
@@ -632,7 +634,7 @@ html {
         });
 	}
 
-	async function addMapSourceAndLayers(){
+	async function addBottlenecks(){
 		console.log("Adding Source and layers");
 		map.addSource('source-problemstellen', {
 			data: data_bottlenecks,
@@ -768,8 +770,6 @@ html {
 	async function loadMeasures() {
 		console.log("loading measures");
 
-
-
 		// parse json. Fill map with markers, and sidebar with entries.
 		for (let i = 0; i < data_measures.features.length; i++) {
 			let feature = data_measures.features[i];
@@ -805,16 +805,13 @@ html {
 				cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = 'rgb(240,248,255)'; });
 				cat.addEventListener('mouseout',  (event) => { cat.style.backgroundColor = ''; }); 
 				
-
-				// if maßnahme
 				cat.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
 					event.stopPropagation();
-					$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category, event.target.checked])
+					//$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category, event.target.checked])
+					$(".maplibregl-marker").trigger("evaluateVisibility")
 				}); 
 
 				document.querySelector("#measures").append(catGroup);
-
-				// if problemstelle
 
 			}
 
@@ -824,51 +821,51 @@ html {
 			el.style.backgroundImage = `url(${encodeURI(icon_route + icon_name + '.svg')})`;
 			el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
 			el.dataset.iconcategory = feature.properties.category;
+			el.dataset.strategy = feature.properties.strategy;
 			let markerId = "measure-" + i
 			el.id = markerId;
 
-			// togglevisibility is called by the checkboxes in the sidebar on the markers. if the marker has the correct category, hide it!
-			$(el).on("togglevisibility", function( event, keyAttribute, checked ) {
-				
-				if((el.dataset.iconcategory == keyAttribute))
-				{
-					if(checked)
-					{
-						if($('#tab-measures :input[type="checkbox"]').prop('checked'))
-						$(el).show();
-					}
-					else
-						$(el).hide();
-				}
-				else if ((el.id == keyAttribute))
-				{
-					if(checked)
-					{
-						if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
-						$(el).show();
-					}
-					else
-						$(el).hide();		
-				}
-			})
-
 			$(el).on("evaluateVisibility", function() {
-				
+
+				var iconCategory = $(el).data('iconcategory')
+				var strategyOfMarker = el.dataset.strategy
+				var shouldShow = false;
+
 				if($('#tab-measures :input[type="checkbox"]').prop('checked'))
 				{
-					// check the category group of the icons category and set visibility accordingly
+					if($('.category-group[data-category="' + iconCategory + '"]').find('input[type="checkbox"]').is(':checked'))
+						shouldShow = true;
 				}
-				else if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
-				{}
+				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
+				{
+					if($('.category-group[data-category="' + strategyOfMarker + '"]').find('input[type="checkbox"]').is(':checked'))
+						shouldShow = true;
+				}
+
+				if (shouldShow)
+					$(el).show();
+				else
+					$(el).hide();
+
 					
 			})
 
 			el.addEventListener('click', (e) => {
 				e.stopPropagation();
-				console.log("Clicking tab-measures");
-				$("#tab-measures").click();
-				let sidebarEntry = document.getElementById("measure-entry-" + i)
-				scrollSidebarToEntry(sidebarEntry);		
+				console.log("Clicking measure marker");
+				// check which layer is active
+				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
+				{
+					$("#tab-strategies").click();
+					let sidebarEntry = document.getElementById("strategy-measure-entry-"  + i)
+					scrollSidebarToEntry(sidebarEntry);		
+				}
+				if($('#tab-measures :input[type="checkbox"]').prop('checked'))
+				{
+					$("#tab-measures").click();
+					let sidebarEntry = document.getElementById("measure-entry-" + i)
+					scrollSidebarToEntry(sidebarEntry);		
+				}
 			});
 
 
@@ -876,14 +873,31 @@ html {
 				console.log("we hovered over a marker")
 				cursorOnMarker = true;
 				e.stopPropagation();
-				let sidebarEntry = document.getElementById("measure-entry-" + i)
-				sidebarEntry.dispatchEvent(new Event('mouseover'));
+				//let sidebarEntry = document.getElementById("measure-entry-" + i)
+				//sidebarEntry.dispatchEvent(new Event('mouseover'));
+
+				//$('#measure-entry-' + i).dispatchEvent(new Event('mouseover'));
+
+				// Use querySelectorAll to find both elements
+				let elements = document.querySelectorAll('#measure-entry-' + i + ', #strategy-measure-entry-' + i);
+
+				// Loop through the NodeList and dispatch the event for each element
+				elements.forEach(function(element) {
+					console.log(element.id)
+					element.dispatchEvent(new Event('mouseover'));
+				});
+
 			});
 
 			el.addEventListener('mouseout', function() {
 				cursorOnMarker = false;
-				let sidebarEntry = document.getElementById("measure-entry-" + i)
-				sidebarEntry.dispatchEvent(new Event('mouseout'));
+				let elements = document.querySelectorAll('#measure-entry-' + i + ', #strategy-measure-entry-' + i);
+
+				// Loop through the NodeList and dispatch the event for each element
+				elements.forEach(function(element) {
+					console.log(element.id)
+					element.dispatchEvent(new Event('mouseout'));
+				});
 			}); 
 
 			// add marker to map
@@ -973,8 +987,8 @@ html {
 					//$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category])
 				}); 
 				strat.querySelector("#visibility-checkbox").checked = false;
-				if (i == 0)
-					strat.querySelector("#visibility-checkbox").checked = true;
+				// if (i == 0)
+				//	strat.querySelector("#visibility-checkbox").checked = true;
 			}
 
 
@@ -992,17 +1006,28 @@ html {
 					console.log("strategy " + i + " contains measure " + m);
 					console.log("Copying DOM Elelent #" + entryCloneID)
 					let clone = document.getElementById(entryCloneID).cloneNode(true)
-					clone.id = "strategy-" + i + "-measure-entry-"  + m
+					clone.id = "strategy-measure-entry-"  + m
 
 					console.log(clone);
 					console.log("appending " + clone + " to element strategy-entry-" + i)
 					document.getElementById("strategy-entry-" + i).append(clone);
-					$(document.getElementById("strategy-" + i + "-measure-entry-"  + m)).slideUp(0);
+					$(document.getElementById("strategy-measure-entry-"  + m)).slideUp(0);
+					document.getElementById("strategy-measure-entry-"  + m).addEventListener('mouseover', function() {
+						this.style.backgroundColor = 'rgb(240,248,255)';
+						let marker = document.querySelector("#measure-" + m)
+						marker.style.width = `80px`;
+						marker.style.height = `80px`;			
+					});
+					document.getElementById("strategy-measure-entry-"  + m).addEventListener('mouseout', function() {
+						this.style.backgroundColor = '';
+						let marker = document.querySelector("#measure-" + m)
+						marker.style.width = `64px`;
+						marker.style.height = `64px`;				
+					});
 
 					// add hiding of the marker if the category-group is clicked:
 					document.getElementById("strategy-entry-" + i).querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
 					event.stopPropagation();
-					$(".maplibregl-marker").trigger("togglevisibility", ["measure-" + m, event.target.checked])
 					$(".maplibregl-marker").trigger("evaluateVisibility")
 				}); 
 
