@@ -203,7 +203,7 @@ html {
 	font-size:8pt;
 	padding: 8px;
 	margin: 8px;
-}
+	}
 }
 
 </style>
@@ -571,7 +571,8 @@ html {
 			let image_name = null;
 			if(feature.properties.image)
 				image_name = feature.properties.image;
-			let id = feature.properties.Situation.replaceAll(' ', '') + '-' + i
+			// let id = feature.properties.Situation.replaceAll(' ', '') + '-' + i
+			let id = 'Problemstelle-' + i
 
 			let file = await fetch(img_route + image_name)
 			if (file.status === 404) {
@@ -1010,10 +1011,33 @@ html {
 				//	strat.querySelector("#visibility-checkbox").checked = true;
 			}
 
-
 			strat.querySelector(".category-group").id = "strategy-entry-" + i
 			strat.querySelector("#category-text").textContent = "Strategie " + (i+1) ;
 			document.querySelector("#strategies").append(strat);
+
+
+			let entryCloneID = "Problemstelle-" + i;
+			console.log("Copying DOM Elelent #" + entryCloneID)
+			let clone = document.getElementById(entryCloneID).cloneNode(true)
+			clone.id = "strategy-bottleneck-entry-"  + i
+
+			console.log("appending " + clone + " to element strategy-entry-" + i)
+			document.getElementById("strategy-entry-" + i).append(clone);
+
+			document.getElementById("strategy-bottleneck-entry-"  + i).addEventListener('mouseover', function() {
+				this.style.backgroundColor = 'rgb(240,248,255)';
+				map.setFeatureState({source: 'source-problemstellen', id: i}, {hover: true});
+				// make hover true
+				
+			});
+			document.getElementById("strategy-bottleneck-entry-"  + i).addEventListener('mouseout', function() {
+				this.style.backgroundColor = '';
+				map.setFeatureState({source: 'source-problemstellen', id: i}, {hover: false});
+				// make hover false
+			}); 
+
+
+
 
 
 			for (let m = 0; m < data_measures.features.length; m++) {
