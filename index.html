@@ -40,8 +40,9 @@ html {
 }
 
 .map-container {
+	padding: 8px;
+	box-sizing: border-box;
 	width: 100%;
-	padding: 10px;
 }
 
 .main-window {
@@ -124,7 +125,6 @@ html {
 	font-family: "Source Sans 3", sans-serif;
 	font-size:10pt;
 	color:#3a3a3a;
-
 }
 
 .tab {
@@ -186,7 +186,7 @@ html {
 	z-index:50000;
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 750px) {
   .container {
 	flex-direction: column;
   }
@@ -194,9 +194,16 @@ html {
 	height: 50%;
   }
   .sidebar {
+	font-size: 8pt;
 	width: auto;
 	height: 50%
   }
+
+  .button-fit, .dropdownSelect, .legend{
+	font-size:8pt;
+	padding: 8px;
+	margin: 8px;
+}
 }
 
 </style>
@@ -219,15 +226,15 @@ html {
 		  </div>
 
 		  <div class="legend">Weitere Layer
-			<div class="legend-item">
+		  <!-- <div class="legend-item">
 				<input type="checkbox" id="verkehrsnachfrage" value="verkehrsnachfrage" onchange="switchlayer(['verkehrsnachfrage'], 'verkehrsnachfrage')" />
 				<label for="verkehrsnachfrage">Verkehrsnachfrage</label>
-			</div>
+			</div> -->
 			<div class="legend-item">
 			  <input type="checkbox" id="traffic" value="traffic" onchange="switchlayer(['traffic'], 'traffic')" />
 			  <label for="traffic">Verkehrslage</label>
 			</div>
-			<div class="legend-sub-group">
+			<!-- <div class="legend-sub-group">
 			  <div class="legend-sub-item">
 				<input type="radio" name="traffic-flow" id="traffic-flow-current" value="traffic-flow-current" onchange="switchlayer(['traffic-flow-current'], 'traffic-flow-current')" checked/>
 				<label for="traffic-flow-current">Aktuell</label>
@@ -256,7 +263,7 @@ html {
 			<div class="legend-item">
 				<input type="checkbox" id="stationierung" value="stationierung" onchange="switchlayer(['stationierung'], 'stationierung')" />
 				<label for="stationierung">Stationierungen</label>
-			</div>
+			</div> -->
 			<div class="legend-item">
 				<input type="checkbox" id="landkreise" value="landkreise" onchange="switchlayer(['landkreise-fill', 'landkreise-line'], 'landkreise')" />
 				<label for="landkreise">Landkreise</label>
@@ -317,7 +324,7 @@ html {
         container: 'map',
         style:'basemap-de-style-a06ceb84.json', // style URL
 		//style: 'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json',
-		maxZoom: 15.99,
+		maxZoom: 17,
 		preserveDrawingBuffer: true,
 	
     });
@@ -1099,6 +1106,10 @@ html {
 		document.getElementById("styles").addEventListener("change", function (event) {
 			const styleId = event.target.value;
 			map.setStyle(styleId, {diff: false});
+			if(styleId == 'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json')
+				map.setMaxZoom(15.99)
+			else
+				map.setMaxZoom(17)
         });
 
 	}
