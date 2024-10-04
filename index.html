@@ -163,6 +163,8 @@ html {
 	display: flex;
 	flex-direction: column;
 	font-weight: bold;
+	position: fixed;
+	max-height: 70%;
 }
 .legend-item {
 	display: flex;
@@ -184,6 +186,12 @@ html {
 
 .maplibregl-popup {
 	z-index:50000;
+}
+
+.collapsible {
+	max-height: 0;
+	transition: max-height 0.2s ease-out;
+	overflow: scroll;
 }
 
 @media only screen and (max-width: 750px) {
@@ -225,16 +233,18 @@ html {
 			  </select>
 		  </div>
 
-		  <div class="legend">Weitere Layer
-		  <!-- <div class="legend-item">
+		  <div class="legend">
+			<span class="weitere-layer" style="cursor: pointer;">Weitere Layer</span>
+			<div class="collapsible">
+		  <div class="legend-item">
 				<input type="checkbox" id="verkehrsnachfrage" value="verkehrsnachfrage" onchange="switchlayer(['verkehrsnachfrage'], 'verkehrsnachfrage')" />
 				<label for="verkehrsnachfrage">Verkehrsnachfrage</label>
-			</div> -->
+			</div>
 			<div class="legend-item">
 			  <input type="checkbox" id="traffic" value="traffic" onchange="switchlayer(['traffic'], 'traffic')" />
 			  <label for="traffic">Verkehrslage</label>
 			</div>
-			<!-- <div class="legend-sub-group">
+			<div class="legend-sub-group">
 			  <div class="legend-sub-item">
 				<input type="radio" name="traffic-flow" id="traffic-flow-current" value="traffic-flow-current" onchange="switchlayer(['traffic-flow-current'], 'traffic-flow-current')" checked/>
 				<label for="traffic-flow-current">Aktuell</label>
@@ -263,7 +273,7 @@ html {
 			<div class="legend-item">
 				<input type="checkbox" id="stationierung" value="stationierung" onchange="switchlayer(['stationierung'], 'stationierung')" />
 				<label for="stationierung">Stationierungen</label>
-			</div> -->
+			</div>
 			<div class="legend-item">
 				<input type="checkbox" id="landkreise" value="landkreise" onchange="switchlayer(['landkreise-fill', 'landkreise-line'], 'landkreise')" />
 				<label for="landkreise">Landkreise</label>
@@ -276,7 +286,8 @@ html {
 				<input type="checkbox" id="untersuchungsgebiet" value="untersuchungsgebiet" onchange="switchlayer(['untersuchungsgebiet-line'], 'untersuchungsgebiet')" />
 				<label for="untersuchungsgebiet">Untersuchungsgebiet</label>
 			</div>
-		  </div>
+		</div>
+	</div>
 
 		  </div>
 	  </div>
@@ -1134,7 +1145,28 @@ html {
 				map.setMaxZoom(15.99)
 			else
 				map.setMaxZoom(17)
+
+				var checkboxes = document.querySelectorAll('.legend input[type="checkbox"]');
+
+				// Loop through all checkboxes and uncheck them
+				checkboxes.forEach(function(checkbox) {
+				checkbox.checked = false;
+			});
         });
+
+		var coll = document.getElementsByClassName("weitere-layer");
+		var i;
+
+		for (i = 0; i < coll.length; i++) {
+			coll[i].addEventListener("click", function() {
+				var content = this.nextElementSibling;
+				if (content.style.maxHeight){
+				content.style.maxHeight = null;
+				} else {
+				content.style.maxHeight = content.scrollHeight + "px";
+				} 
+			});
+		}
 
 	}
 
