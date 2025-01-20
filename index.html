@@ -653,14 +653,33 @@ html {
 		let problemstelleID = null;		
 		map.on('mousemove', 'layer-problemstellen-fill', (event) => {
 			map.getCanvas().style.cursor = 'pointer';
-			if (event.features.length === 0) return;
+			if (event.features.length === 0)
+				return;
 			// When the mouse moves over the layer, update the
 			// feature state for the feature under the mouse
 			if (problemstelleID != null) {
 				map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: false});
+				// Use querySelectorAll to find both elements
+				let elements = document.querySelectorAll('#Problemstelle-' + problemstelleID + ', #strategy-bottleneck-entry-' + problemstelleID);
+				// Loop through the NodeList and dispatch the event for each element
+				elements.forEach(function(element) {
+					element.dispatchEvent(new Event('mouseout'));
+				});
 			}
 			problemstelleID = event.features[0].id;
 			map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: true});
+			// Use querySelectorAll to find both elements
+			let elements = document.querySelectorAll('#Problemstelle-' + problemstelleID + ', #strategy-bottleneck-entry-' + problemstelleID);
+				// Loop through the NodeList and dispatch the event for each element
+				elements.forEach(function(element) {
+					console.log(element.id)
+					element.dispatchEvent(new Event('mouseover'));
+				});
+
+
+
+
+
         });
         map.on('mouseleave', 'layer-problemstellen-fill', () => {
 			map.getCanvas().style.cursor = '';
@@ -668,6 +687,13 @@ html {
         	// feature state of the previously hovered feature
         	if (problemstelleID != null) {
         		map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: false});
+				// Use querySelectorAll to find both elements
+				let elements = document.querySelectorAll('#Problemstelle-' + problemstelleID + ', #strategy-bottleneck-entry-' + problemstelleID);
+				// Loop through the NodeList and dispatch the event for each element
+				elements.forEach(function(element) {
+					console.log(element.id)
+					element.dispatchEvent(new Event('mouseout'));
+				});
         	}
           	problemstelleID = null;          	
         });
@@ -1489,6 +1515,26 @@ function handleMapClicks(){
 
 			case 'layer-problemstellen-fill':
 				console.log("Problemstelle angeklickt");
+				console.log(topmostFeature.properties.id)
+				// ID comes from the geojson.
+				let id = topmostFeature.properties.id -1
+				// check which layer is active
+				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
+				{
+					$("#tab-strategies").click();
+					let sidebarEntry = document.getElementById("strategy-bottleneck-entry-"+id)
+					scrollSidebarToEntry(sidebarEntry);		
+				}
+				if($('#tab-bottlenecks :input[type="checkbox"]').prop('checked'))
+				{
+					$("#tab-bottlenecks").click();
+					let sidebarEntry = document.getElementById("Problemstelle-" + id)
+					scrollSidebarToEntry(sidebarEntry);		
+				}
+
+
+
+
 				break;
 			default:
 				console.log("Anderer layer angeklickt");
