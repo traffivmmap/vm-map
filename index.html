@@ -15,6 +15,7 @@
 <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
 <script src="reverse-line.js"></script>
 <script src="html2canvas.min.js"></script>
+<script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
 
 <script type="text/javascript" src="//cdn.jsdelivr.net/canvas-toblob/0.1/canvas-toBlob.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/npm/filesaver.js@1.3.4/FileSaver.min.js"></script>
@@ -24,7 +25,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Source+Sans+3&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200&display=swap');
 
-
+ 
 body,
 html {
 	height: 100%;
@@ -228,7 +229,11 @@ html {
 		  <div id="map-buttons-container" style="display: flex; justify-content: space-between;">
 			  <button id="button-fit" class = "button-fit">Ganzes Gebiet anzeigen</button>
 
-				<button id="generate-btn" class = "button-fit">Exportieren/Drucken</button>
+				<select id="export" class="dropdownSelect">
+					<option hidden disabled selected value> Exportieren </option>
+					<option value="pdf">PDF</option>
+					<option value="png">PNG</option>
+      			</select>
 
 			  <select id="styles" class="dropdownSelect">
 				<option value="basemap-de-style-a06ceb84.json">Karte</option>
@@ -1260,6 +1265,20 @@ html {
 			});
         });
 
+
+
+		// initialize export dropdown
+		document.getElementById("export").selectedIndex = 0;
+		document.getElementById("export").addEventListener("change", function (event) {
+			const filetype = event.target.value;
+			console.log(filetype);
+			document.getElementById("export").selectedIndex = 0;
+			Print(filetype)
+        });
+
+
+
+
 		var coll = document.getElementsByClassName("weitere-layer");
 		var i;
 
@@ -1428,51 +1447,7 @@ html {
 		Print()
   }); 
 
-  function Print() {
-		let format = 'png'
-        if (format == 'png') {
-			console.log("rendering");
-
-		html2canvas(document.getElementById('map'), 
-		{
-			ignoreElements: function( element ) {			
-				if( 'map-buttons-container' == element.id ) {
-					return true;
-				}		
-			}
-		})
-		.then(function(canvas) {
-			canvas.toBlob(function(blob) {
-                saveAs(blob, 'map.png');
-            });;
-		});
-
-        } else {
-            var pdf = new jsPDF({
-                orientation: width > height ? 'l' : 'p',
-                unit: unit,
-                format: [width, height],
-                compress: true
-            });
-
-            pdf.addImage(renderMap.getCanvas().toDataURL('image/png'),
-                'png', 0, 0, width, height, null, 'FAST');
-
-            var title = map.getStyle().name,
-                subject = "center: [" + form.lonInput.value  + ", " + form.latInput.value + ", " + form.zoomInput.value + "]",
-                attribution = '(c) ' +
-                    (form.styleSelect.value.indexOf('mapbox') >= 0 ? 'Mapbox' : 'Stadia Maps') +
-                    ', (c) OpenStreetMap';
-
-            pdf.setProperties({
-                title: title,
-                subject: subject,
-                creator: 'Print Maps',
-                author: attribution
-            })
-            pdf.save('map.pdf');
-        }
-}
+  
 
 function handleMapClicks(){
 	map.on('click', (e) => { // topmost layer
@@ -1648,6 +1623,55 @@ function setSvgAsBackground(svgUrl) {
             console.error("Error loading SVG:", error);
         });
 }
+
+window.jsPDF = window.jspdf.jsPDF
+function Print(format) {
+    if (format == 'png') {
+		html2canvas(document.getElementById('map'), 
+		{
+			ignoreElements: function( element ) {			
+				if( 'map-buttons-container' == element.id ) {
+					return true;
+				}		
+			}
+		})
+		.then(function(canvas) {
+			canvas.toBlob(function(blob) {
+                saveAs(blob, 'map.png');
+            });;
+		});
+
+        } else if (format == 'pdf') {
+
+			html2canvas(document.getElementById('map'), {
+                ignoreElements: function (element) {
+                    // Ignore specific elements by ID
+                    if (element.id === 'map-buttons-container') {
+                        return true;
+                    }
+                }
+            }).then(canvas => {
+                // Get the canvas as an image
+                const imgData = canvas.toDataURL("image/png");
+
+                // Use jsPDF to create a PDF
+                const { jsPDF } = window.jspdf; // Access jsPDF from the global window object
+                const pdf = new jsPDF();
+
+                // Add the image to the PDF (fit it to the page)
+                const imgWidth = 190; // Adjust width to fit the page (A4 is 210mm wide minus margins)
+                const pageHeight = pdf.internal.pageSize.height;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+
+                // Save the PDF
+                pdf.save("map.pdf");
+            });
+
+        }
+}
+
 
 </script>
 </body>
