@@ -17,6 +17,10 @@
 <script src="html2canvas.min.js"></script>
 <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
 
+<script src="addStrategicNetworkPT.js"></script>
+<script src="addStrategicNetworkBike.js"></script>
+<script src="addStudyArea.js"></script>
+
 <script type="text/javascript" src="//cdn.jsdelivr.net/canvas-toblob/0.1/canvas-toBlob.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/npm/filesaver.js@1.3.4/FileSaver.min.js"></script>
 
@@ -246,10 +250,10 @@ html {
 		  <div class="legend">
 			<span class="weitere-layer" style="cursor: pointer;">Weitere Layer</span>
 			<div class="collapsible">
-		  <div class="legend-item">
+		  <!-- <div class="legend-item">
 				<input type="checkbox" id="verkehrsnachfrage" value="verkehrsnachfrage" onchange="switchlayer(['verkehrsnachfrage'], 'verkehrsnachfrage')" />
 				<label for="verkehrsnachfrage">Verkehrsnachfrage</label>
-			</div>
+			</div> -->
 			<div class="legend-item">
 			  <input type="checkbox" id="traffic" value="traffic" onchange="switchlayer(['traffic'], 'traffic')" />
 			  <label for="traffic">Verkehrslage</label>
@@ -259,7 +263,7 @@ html {
 				<input type="radio" name="traffic-flow" id="traffic-flow-current" value="traffic-flow-current" onchange="switchlayer(['traffic-flow-current'], 'traffic-flow-current')" checked/>
 				<label for="traffic-flow-current">Aktuell</label>
 			  </div>
-			  <div class="legend-sub-item">
+<!-- 			  <div class="legend-sub-item">
 				<input type="radio" name="traffic-flow" id="traffic-flow-morning" value="traffic-flow-morning" onchange="switchlayer(['traffic-flow-morning'], 'traffic-flow-current')" />
 				<label for="traffic-flow-morning">Morgens</label>
 			  </div>
@@ -274,16 +278,16 @@ html {
 			  <div class="legend-sub-item">
 				<input type="radio" name="traffic-flow" id="traffic-flow-night" value="traffic-flow-night" onchange="switchlayer(['traffic-flow-night'], 'traffic-flow-night')" />
 				<label for="traffic-flow-night">Nachts</label>
-			  </div>
+			  </div> -->
 			</div>
-			<div class="legend-item">
+			<!-- <div class="legend-item">
 				<input type="checkbox" id="infrastruktur" value="infrastruktur" onchange="switchlayer(['infrastruktur'], 'infrastruktur')" />
 				<label for="infrastruktur">Infrastruktur</label>
-			</div>
-			<div class="legend-item">
+			</div> -->
+			<!-- <div class="legend-item">
 				<input type="checkbox" id="stationierung" value="stationierung" onchange="switchlayer(['stationierung'], 'stationierung')" />
 				<label for="stationierung">Stationierungen</label>
-			</div>
+			</div> -->
 			<div class="legend-item">
 				<input type="checkbox" id="landkreise" value="landkreise" onchange="switchlayer(['landkreise-fill', 'landkreise-line'], 'landkreise')" />
 				<label for="landkreise">Landkreise</label>
@@ -295,6 +299,15 @@ html {
 			<div class="legend-item">
 				<input type="checkbox" id="untersuchungsgebiet" value="untersuchungsgebiet" onchange="switchlayer(['untersuchungsgebiet-line'], 'untersuchungsgebiet')" />
 				<label for="untersuchungsgebiet">Untersuchungsgebiet</label>
+			</div>
+			<div></br>Strategische Netze</div>
+			<div class="legend-item">
+				<input type="checkbox" id="strategisches-netz-pt" value="strategisches-netz-pt" onchange="switchlayer(['bus-lines', 'bus-labels', 'zug-lines', 'zug-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'haltestellen-fill', 'haltestellen-outlines'], 'strategisches-netz-pt')" />
+				<label for="strategisches-netz-pt">ÖV</label>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="strategisches-netz-rad" value="strategisches-netz-rad" onchange="switchlayer(['RadNETZ-source'], 'strategisches-netz-rad')" />
+				<label for="strategisches-netz-rad">Rad</label>
 			</div>
 		</div>
 	</div>
@@ -345,7 +358,7 @@ html {
         container: 'map',
         style:'basemap-de-style-a06ceb84.json', // style URL
 		//style: 'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json',
-		maxZoom: 17,
+		maxZoom: 18,
 		preserveDrawingBuffer: true,
 	
     });
@@ -360,9 +373,17 @@ html {
 	let cursorOnMarker = false;
 
 	let bbox =  turf.bbox(data_bottlenecks);
-	map.fitBounds(bbox, { duration: 0, padding: 64 })
+	//map.fitBounds(bbox, { duration: 0, padding: 64 })
+	map.fitBounds([
+			[8.82088, 49.37708],
+			[9.52641, 49.02268]
+        ], { duration: 1, padding: 64 });
 	document.getElementById('button-fit').addEventListener('click', () => {
-		map.fitBounds(bbox, { pitch: 0, padding: 64, });
+		// map.fitBounds(bbox, { pitch: 0, padding: 64, });
+		map.fitBounds([
+			[8.82088, 49.37708],
+			[9.52641, 49.02268]
+        ], { duration: 1000, padding: 64 });
 	});
 
 
@@ -371,20 +392,27 @@ html {
 
 
 		prepareUI();
-		await loadBottlenecks(); // Load Sidebar entries for the bottlenecks
-		await loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
+		//await loadBottlenecks(); // Load Sidebar entries for the bottlenecks
+		//await loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
 
 
 
-		loadStrategies();
-		addArea(); // Adds Untersuchungsgebiet layer
+		//loadStrategies();
+		addStrategicNetworkPT(map);
+		addStrategicNetworkBike(map);
+		addStudyArea(map); // Adds Untersuchungsgebiet layer
 		addcommunities(); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
-		addBottlenecks(); // Adds bottlenecks layer to the map.
+		//addBottlenecks(); // Adds bottlenecks layer to the map.
 		handleMapClicks();
 		handleHovering();
+		handlePointer();
 
+		console.log("load called");
+
+		let bounds = map.getBounds();
+		console.log('Map bounds (current view):', bounds);
 
 		
 	});
@@ -397,40 +425,17 @@ html {
 
 		//await addBottlenecks();
 		//filterBottlenecks();
-		addArea();
+		addStrategicNetworkPT(map);
+		addStudyArea(map);
 		addcommunities();
 		addCounties();
-		addBottlenecks();
+		//addBottlenecks();
+		console.log("style.load called");
 
 
 	});
 
-	async function addArea()
-	{
-		map.addSource('untersuchungsgebiet', {
-            type: 'geojson',
-            // Use a URL for the value for the `data` property.
-            data: 'data/geojson/area.geojson',
-			//generateId: true // This ensures that all features have unique IDs
-        });
 
-        map.addLayer({
-            'id': 'untersuchungsgebiet-line',
-            'type': 'line',
-            'source': 'untersuchungsgebiet',
-			'layout': {
-				'visibility': 'none',
-				'line-cap': 'butt',
-				'line-join': 'round',
-			},
-            'paint': {
-                'line-color': '#33BBBB',
-                'line-width': 4,
-            }
-        });
-
-		console.log("added untersuchungsgebiet...")
-	}
 
 	async function addcommunities()
 	{
@@ -1255,7 +1260,7 @@ html {
 			if(styleId == 'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json')
 				map.setMaxZoom(15.99)
 			else
-				map.setMaxZoom(17)
+				map.setMaxZoom(18)
 
 				var checkboxes = document.querySelectorAll('.legend input[type="checkbox"]');
 
@@ -1415,17 +1420,24 @@ html {
 	function toggleStrategiesLayer() {
 		let main = $('#tab-strategies :input[type="checkbox"]');
 		let isChecked = main.prop('checked');
+		var elements
 		if (isChecked)
 		{
 			// uncheck all
-			main.parent().parent().siblings("#strategies").find('input:checkbox:checked').trigger('click');
+			elements = main.parent().parent().siblings("#strategies").find('input:checkbox:checked')
+			if (elements)
+				elements.trigger('click');
 
 			//Check only first 
-			console.log(main.parent().parent().siblings("#strategies").find('input:checkbox')[0].click())
+			elements = main.parent().parent().siblings("#strategies").find('input:checkbox')[0]
+			if (elements)
+				elements.click()
 		}
 		else
 		{
-			main.parent().parent().siblings("#strategies").find('input:checkbox:checked').trigger('click');
+			var elements = main.parent().parent().siblings("#strategies").find('input:checkbox:checked')
+			if(elements)
+				elements.trigger('click');
 		}
 	}
 
@@ -1459,12 +1471,13 @@ function handleMapClicks(){
 		const topmostFeature = features[0];
 		const layerId = topmostFeature.layer.id;
 		console.log("Clicked " + layerId);
-
+		let txt = ''
 		switch(layerId) {
 			case 'landkreise-fill':
 			case 'gemeinden-fill':
+			case 'RadNETZ-layer':
 
-				let txt = ''
+
 				Object.keys(topmostFeature.properties).forEach(function(key) {
 					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
 				})
@@ -1511,6 +1524,48 @@ function handleMapClicks(){
 
 
 				break;
+			case 'bus-labels':
+			case 'bus-lines':
+				var ref = topmostFeature.properties.ref
+				txt = 'In diesem Abschnitt fahren die Buslinien:<br />' + ref
+				new maplibregl.Popup()	
+					.setLngLat(e.lngLat)
+					.setHTML(txt)
+					.addTo(map)
+
+				break;
+
+			case 'stadtbahn-labels':
+			case 'stadtbahn-lines':
+				var ref = topmostFeature.properties.ref
+				txt = 'In diesem Abschnitt fahren die Stadtbahnlinien:<br />' + ref
+				new maplibregl.Popup()	
+					.setLngLat(e.lngLat)
+					.setHTML(txt)
+					.addTo(map)
+				break;
+
+			case 'zug-labels':
+			case 'zug-lines':
+				var ref = topmostFeature.properties.ref
+				txt = 'In diesem Abschnitt fahren die Zuglinien:<br />' + ref
+				new maplibregl.Popup()	
+					.setLngLat(e.lngLat)
+					.setHTML(txt)
+					.addTo(map)
+				break;
+
+			case 'haltestellen-outlines':
+			case 'haltestellen-fill':
+				var l = topmostFeature.properties.l
+				var n = topmostFeature.properties.n
+				l = l.replace(/[{}']/g, "");
+				txt = n + '<br />Diese Haltestelle wird von folgenden Linien bedient:<br />' + l
+				new maplibregl.Popup()	
+					.setLngLat(e.lngLat)
+					.setHTML(txt)
+					.addTo(map)
+				break;
 			default:
 				console.log("Anderer layer angeklickt");
 		} 
@@ -1519,12 +1574,12 @@ function handleMapClicks(){
 
 function handleHovering(){
 	let hoveredFeatureId = null;
-let lastHoveredFeatureId = null;
-let lastHoveredLayerId = null;
-let lastHoveredFeature = null;
+	let lastHoveredFeatureId = null;
+	let lastHoveredLayerId = null;
+	let lastHoveredFeature = null;
 
-let currentFeature = null;
-let currentLayerId = null;
+	let currentFeature = null;
+	let currentLayerId = null;
 
         map.on('mousemove', (e) => {		
 			const features = map.queryRenderedFeatures(e.point);
@@ -1670,6 +1725,21 @@ function Print(format) {
             });
 
         }
+}
+
+function handlePointer()
+{
+	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines', 'RadNETZ-layer']; // Array of layers to apply the effect
+
+	layers.forEach(layer => {
+		map.on('mouseenter', layer, () => {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+
+		map.on('mouseleave', layer, () => {
+			map.getCanvas().style.cursor = '';
+		});
+	});
 }
 
 
