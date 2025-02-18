@@ -20,6 +20,7 @@
 <script src="addStrategicNetworkPT.js"></script>
 <script src="addStrategicNetworkBike.js"></script>
 <script src="addStudyArea.js"></script>
+<script src="addLegendSymbol.js"></script>
 
 <script type="text/javascript" src="//cdn.jsdelivr.net/canvas-toblob/0.1/canvas-toBlob.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/npm/filesaver.js@1.3.4/FileSaver.min.js"></script>
@@ -185,9 +186,18 @@ html {
 
 .legend-sub-item {
 	margin-left: 20px; /* Indent the radio buttons */
-	display: flex;
+	font-weight: normal;
 	align-items: center;
 }
+
+.legend-symbology {
+	font-weight: normal;
+	margin-left: 20px;  /* Indent to the right */
+    display: flex;      /* Align symbol and text horizontally */
+    align-items: center; /* Center them vertically */
+    gap: 5px;   
+}
+
 .legend-sub-group {
 	display: flex;
 	flex-direction: column;
@@ -196,6 +206,10 @@ html {
 
 .maplibregl-popup {
 	z-index:50000;
+}
+
+.maplibregl-popup-content {
+	overflow: auto;
 }
 
 .collapsible {
@@ -306,7 +320,9 @@ html {
 				<label for="strategisches-netz-pt">ÖV</label>
 			</div>
 			<div class="legend-item">
-				<input type="checkbox" id="strategisches-netz-rad" value="strategisches-netz-rad" onchange="switchlayer(['RadNETZ-source'], 'strategisches-netz-rad')" />
+				<input type="checkbox" id="strategisches-netz-rad" value="strategisches-netz-rad" onchange="switchlayer(['RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer',
+																														 'bikeSharingStations-fill', 'bikeSharingStations-outlines',
+																														 'Fahrradabstellanlagen-fill', 'Fahrradabstellanlagen-outlines'], 'strategisches-netz-rad')" />
 				<label for="strategisches-netz-rad">Rad</label>
 			</div>
 		</div>
@@ -388,6 +404,7 @@ html {
 
 
 
+
     map.on('load', async () => {
 
 
@@ -414,6 +431,7 @@ html {
 		let bounds = map.getBounds();
 		console.log('Map bounds (current view):', bounds);
 
+
 		
 	});
 
@@ -426,6 +444,7 @@ html {
 		//await addBottlenecks();
 		//filterBottlenecks();
 		addStrategicNetworkPT(map);
+		addStrategicNetworkBike(map);
 		addStudyArea(map);
 		addcommunities();
 		addCounties();
@@ -1475,8 +1494,14 @@ function handleMapClicks(){
 		switch(layerId) {
 			case 'landkreise-fill':
 			case 'gemeinden-fill':
-			case 'RadNETZ-layer':
-
+			case 'RadNETZBW-layer':
+			case 'RadNETZKreis-layer':
+			case 'RadNETZKom-layer':
+			case 'RadOSM-layer':
+			case 'bikeSharingStations-fill':
+			case 'bikeSharingStations-outlines':
+			case 'Fahrradabstellanlagen-fill':
+			case 'Fahrradabstellanlagen-outlines':
 
 				Object.keys(topmostFeature.properties).forEach(function(key) {
 					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
@@ -1495,7 +1520,7 @@ function handleMapClicks(){
 				var newLngLat = map.unproject(offsetPixels);
 
 				new maplibregl.Popup()	
-					.setLngLat(newLngLat)
+					.setLngLat(e.lngLat)
 					.setHTML(txt)
 					.addTo(map)
 
@@ -1729,7 +1754,9 @@ function Print(format) {
 
 function handlePointer()
 {
-	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines', 'RadNETZ-layer']; // Array of layers to apply the effect
+	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',
+					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations-fill', 'bikeSharingStations-outlines',
+					'Fahrradabstellanlagen-fill', 'Fahrradabstellanlagen-outlines']; // Array of layers to apply the effect
 
 	layers.forEach(layer => {
 		map.on('mouseenter', layer, () => {

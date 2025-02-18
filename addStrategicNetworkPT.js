@@ -51,6 +51,7 @@ function addStrategicNetworkPT(map) {
         }
     });
 
+
     console.log("added bus lines...")
 
 
@@ -166,8 +167,8 @@ function addStrategicNetworkPT(map) {
         paint: {
             'circle-radius': [
                 'interpolate', ['linear'], ['zoom'],
-                12, 3,
-                16, 7
+                11, 4,
+                16, 8
             ], // Get size from feature property
             'circle-color': '#000000', // Get color from feature property
         }
@@ -183,8 +184,8 @@ function addStrategicNetworkPT(map) {
         paint: {
             'circle-radius': [
                 'interpolate', ['linear'], ['zoom'],
-                12, 2,
-                16, 6
+                11, 3,
+                16, 7
             ], // Get size from feature property
             'circle-color': '#FFFFFF', // Get color from feature property
         }
