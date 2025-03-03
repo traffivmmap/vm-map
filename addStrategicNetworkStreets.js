@@ -443,7 +443,7 @@ map.addLayer({
 });
 
 let legendSymbolParken = {
-    text : "Parken",
+    text : "Parken (MobiData)",
     symbolType: "circle",
     fill: "#005a8c",
 }
