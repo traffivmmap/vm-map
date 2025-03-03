@@ -6,6 +6,8 @@
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css' />
+<link rel="stylesheet" href="style.css">
+
 <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3&display=swap" rel="stylesheet">
 
@@ -15,10 +17,9 @@
 <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
 <script src="reverse-line.js"></script>
 <script src="html2canvas.min.js"></script>
+<script src="provideStyleImage.js"></script>
 <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
 
-<script src="addStrategicNetworkPT.js"></script>
-<script src="addStrategicNetworkBike.js"></script>
 <script src="addStudyArea.js"></script>
 <script src="addLegendSymbol.js"></script>
 
@@ -27,216 +28,7 @@
 
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Source+Sans+3&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200&display=swap');
 
- 
-body,
-html {
-	height: 100%;
-	margin: 0;
-	font-family: "Source Sans 3", sans-serif;
-	font-size:11pt;
-	color:#3a3a3a;
-}
-
-.container {
-	height:100%;
-	display:flex;
-}
-
-.map-container {
-	padding: 8px;
-	box-sizing: border-box;
-	width: 100%;
-}
-
-.main-window {
-	flex-grow: 1;
-	height:100%;
-}
-
-.sidebar {
-	width: 420px;
-	background-color: #fbfbfb;
-	flex-shrink:0;
-	display: flex;
-	flex-direction: column;
-}
-
-.sidebar-entry, .category {
-	background-color: white;
-	border: 1px solid #d8d8d8;
-	padding: 15px;
-	margin: 8px;
-	margin-bottom: 16px;
-	border-radius: 8px;
-	-webkit-hyphens: auto;
-	-moz-hyphens: auto;
-	-ms-hyphens: auto;
-	hyphens: auto;
-	filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.15));
-}
-
-.category {
-	display:flex;
-}
-
-.title {
-	font-weight: bold;
-}
-
-.content {
-		padding: 15px; 
-}
-
-.marker {
-	width: 64px;
-	height: 64px;
-	background-size: contain;
-	filter: drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3));
-	cursor: pointer;
-}
-
-.marker svg {
-    width: 100%;
-    height: 100%;
-}
-
-.sidebar-image {
-	max-width:100%;
-	max-height:256px
-}
-
-.image-container {
-	text-align:center;
-	padding-bottom:20px;
-	padding-top: 15px;
-}
-
-.description {
-	padding: 5px;
-}
-
-.headline {
-	padding: 10px;
-	font-weight: bold;
-}
-
-.button-fit, .dropdownSelect, .legend{
-	position: relative;
-	z-index:100000;
-	background-color: white;
-	padding: 20px;
-	border-radius: 8px;
-	margin:20px;
-	border: none;
-	filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.25));
-	width: fit-content;
-	font-family: "Source Sans 3", sans-serif;
-	font-size:10pt;
-	color:#3a3a3a;
-}
-
-.tab {
-	border: 1px solid #d8d8d8;
-	position: relative;
-	border-radius: 8px 8px 0px 0px;
-	flex-grow: 1;
-	margin-top: 8px;
-	color: #969696;
-	padding: 15px;
-	font-weight: bold;
-	display: flex;
-}
-
-.tab-body {
-	background-color: #ccc;
-	border-left: 1px solid #d8d8d8;
-	overflow-y: auto;
-	height: 100%;
-	padding: 4px;
-	padding-top: 8px;
-	background: #FFFFFF;
-}
-
-.tab.active {
-	background: #FFFFFF;
-	border-bottom: none;
-	color: #3a3a3a;
-}
-
-.tab-container {
-	display: flex; /* or inline-flex */
-}
-
-.legend {
-	display: flex;
-	flex-direction: column;
-	font-weight: bold;
-	position: fixed;
-	max-height: 70%;
-}
-.legend-item {
-	display: flex;
-	align-items: center;
-	margin-top: 5px; /* Adjust spacing between items if needed */
-	font-weight: normal;
-}
-
-.legend-sub-item {
-	margin-left: 20px; /* Indent the radio buttons */
-	font-weight: normal;
-	align-items: center;
-}
-
-.legend-symbology {
-	font-weight: normal;
-	margin-left: 20px;  /* Indent to the right */
-    display: flex;      /* Align symbol and text horizontally */
-    align-items: center; /* Center them vertically */
-    gap: 5px;   
-}
-
-.legend-sub-group {
-	display: flex;
-	flex-direction: column;
-	font-weight: normal;
-}
-
-.maplibregl-popup {
-	z-index:50000;
-}
-
-.maplibregl-popup-content {
-	overflow: auto;
-}
-
-.collapsible {
-	max-height: 0;
-	transition: max-height 0.2s ease-out;
-	overflow: scroll;
-}
-
-@media only screen and (max-width: 750px) {
-  .container {
-	flex-direction: column;
-  }
-  .map-container {
-	height: 50%;
-  }
-  .sidebar {
-	font-size: 8pt;
-	width: auto;
-	height: 50%
-  }
-
-  .button-fit, .dropdownSelect, .legend{
-	font-size:8pt;
-	padding: 8px;
-	margin: 8px;
-	}
-}
 
 </style>
 </head>
@@ -257,6 +49,7 @@ html {
 				<option value="basemap-de-style-a06ceb84.json">Karte</option>
 				<option value="https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json">Satellit</option>
 				<option value="https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/styles/bm_web_top.json">Topographisch</option>
+				<option value="https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/styles/bm_web_gry.json">Graustufen</option>
 				
 			  </select>
 		  </div>
@@ -321,9 +114,13 @@ html {
 			</div>
 			<div class="legend-item">
 				<input type="checkbox" id="strategisches-netz-rad" value="strategisches-netz-rad" onchange="switchlayer(['RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer',
-																														 'bikeSharingStations-fill', 'bikeSharingStations-outlines',
-																														 'Fahrradabstellanlagen-fill', 'Fahrradabstellanlagen-outlines'], 'strategisches-netz-rad')" />
+																														 'bikeSharingStations',
+																														 'Fahrradabstellanlagen'], 'strategisches-netz-rad')" />
 				<label for="strategisches-netz-rad">Rad</label>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="strategisches-netz-miv" value="strategisches-netz-miv" onchange="switchlayer(['K-line', 'K-name-label', 'K-direction-arrow', 'L-line', 'L-name-label', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'B-name-label', 'node-label', 'node-symbol', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer'], 'strategisches-netz-miv')" />
+				<label for="strategisches-netz-miv">MIV</label>
 			</div>
 		</div>
 	</div>
@@ -370,6 +167,11 @@ html {
 	</template>
 
 <script type="module">
+
+	import { addStrategicNetworkBike } from "./addStrategicNetworkBike.js";
+	import { addStrategicNetworkPT } from "./addStrategicNetworkPT.js";
+	import { addStrategicNetworkStreets } from "./addStrategicNetworkStreets.js";
+
     const map = new maplibregl.Map({
         container: 'map',
         style:'basemap-de-style-a06ceb84.json', // style URL
@@ -381,7 +183,8 @@ html {
 	map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-left');
 
 	const data_bottlenecks = await (await fetch('data/geojson/problemstellen.geojson')).json();
-	const data_measures =  await (await fetch('data/geojson/data.geojson')).json();
+	const data_measures = await (await fetch('data/geojson/data.geojson')).json();
+	const data_streets = await (await fetch('data/geojson/strategic-networks/iv/BLK.geojson')).json();
 
 	const img_route = 'data/images/'
 	const icon_route = 'data/icons/'
@@ -415,9 +218,11 @@ html {
 
 
 		//loadStrategies();
+		provideStyleImage(map);
 		addStrategicNetworkPT(map);
 		addStrategicNetworkBike(map);
 		addStudyArea(map); // Adds Untersuchungsgebiet layer
+		addStrategicNetworkStreets(map);
 		addcommunities(); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
@@ -445,6 +250,7 @@ html {
 		//filterBottlenecks();
 		addStrategicNetworkPT(map);
 		addStrategicNetworkBike(map);
+		addStrategicNetworkStreets(map);
 		addStudyArea(map);
 		addcommunities();
 		addCounties();
@@ -750,23 +556,6 @@ html {
 				'black'
 		];
 
-		// for(let color of colorrule)
-		// {
-		// 	console.log(colorrule);
-		// }
-		// SVG for the arrow head (a simple triangle)
-		const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-						<polygon points="0, 0, 90, 50, 0, 100" fill="${outlineColor}" />
-                    </svg>`;
-		// Convert SVG to Data URL
-		const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(svg);
-		// load the svg arrow using a custom function that supports the await
-		let img = await loadImage(svgDataUrl);
-		map.addImage('arrow-white', img);
-		let img1 = await map.loadImage("data/images/arrow.png");
-		let img2 = await map.loadImage("data/images/arrow-big.png");
-		map.addImage('arrow-sdf', img1.data,  { sdf: true });
-		map.addImage('arrow-big-sdf', img2.data,  { sdf: true });
 		
 		// add 4 layers: line stroke, arrow-stroke, line-fill and arrow-fill
 		map.addLayer({
@@ -1498,10 +1287,14 @@ function handleMapClicks(){
 			case 'RadNETZKreis-layer':
 			case 'RadNETZKom-layer':
 			case 'RadOSM-layer':
-			case 'bikeSharingStations-fill':
-			case 'bikeSharingStations-outlines':
-			case 'Fahrradabstellanlagen-fill':
-			case 'Fahrradabstellanlagen-outlines':
+			case 'bikeSharingStations':
+			case 'Fahrradabstellanlagen':
+			case 'BAB-line':
+			case 'BAB-name-label':
+			case 'km-label':
+			case 'km-symbol':
+			case 'parking-sites':
+			case 'dwista-layer':
 
 				Object.keys(topmostFeature.properties).forEach(function(key) {
 					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
@@ -1525,6 +1318,37 @@ function handleMapClicks(){
 					.addTo(map)
 
 				break;
+			case 'K-line':
+			case 'K-direction-arrow':
+			case 'L-line':
+			case 'L-direction-arrow':
+			case 'B-line':
+			case 'B-direction-arrow':
+
+
+			// Find the nearest point on the line
+			let clickPoint = [e.lngLat.lng, e.lngLat.lat]
+			let featureId = topmostFeature.id
+			console.log(featureId)
+			let sourceFeature = data_streets.features[featureId]
+			// Extract the sliced line from start to snapped point
+			const slicedLine = turf.lineSlice(sourceFeature.geometry.coordinates[0], clickPoint, sourceFeature);
+
+			// Get the length of the sliced line
+			const lengthUpToPoint = Math.round(turf.length(slicedLine, { units: 'meters' }));
+
+			console.log('Length up to Point (km):', lengthUpToPoint);
+				Object.keys(topmostFeature.properties).forEach(function(key) {
+						txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
+					})
+
+				txt = txt + 'Anfangsnetzknoten: ' + topmostFeature.properties['Anfangsnetzknoten'].slice(-3) + "<br />"	
+				txt = txt + 'Strecke ab Anfangsnetzknoten: ' + lengthUpToPoint + " m<br />"
+				new maplibregl.Popup()	
+						.setLngLat(e.lngLat)
+						.setHTML(txt)
+						.addTo(map)
+				break
 
 			case 'layer-problemstellen-fill':
 				console.log("Problemstelle angeklickt");
@@ -1544,9 +1368,6 @@ function handleMapClicks(){
 					let sidebarEntry = document.getElementById("Problemstelle-" + id)
 					scrollSidebarToEntry(sidebarEntry);		
 				}
-
-
-
 
 				break;
 			case 'bus-labels':
@@ -1755,8 +1576,9 @@ function Print(format) {
 function handlePointer()
 {
 	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',
-					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations-fill', 'bikeSharingStations-outlines',
-					'Fahrradabstellanlagen-fill', 'Fahrradabstellanlagen-outlines']; // Array of layers to apply the effect
+					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations',
+					'Fahrradabstellanlagen',
+					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer']; // Array of layers to apply the effect
 
 	layers.forEach(layer => {
 		map.on('mouseenter', layer, () => {

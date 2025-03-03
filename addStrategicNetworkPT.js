@@ -1,4 +1,6 @@
-function addStrategicNetworkPT(map) {
+let legendSymbolsAdded = false;
+
+export function addStrategicNetworkPT(map) {
 
 
     //----------------------------- Bus -----------------------------------
@@ -52,6 +54,20 @@ function addStrategicNetworkPT(map) {
     });
 
 
+    let legendSymbolBus = {
+        text : "Bus",
+        symbolType: "line",
+        lineColor: "#EE1111",
+        lineThickness: 2,
+    }
+
+    if(!legendSymbolsAdded)
+    {        
+        addLegendSymbol("#strategisches-netz-pt", legendSymbolBus);
+        //$("#strategisches-netz-pt").parent().after("<div style='margin-left: 20px'>RadVis RadNETZ Kommunen")
+    }
+
+
     console.log("added bus lines...")
 
 
@@ -99,6 +115,19 @@ function addStrategicNetworkPT(map) {
             'text-halo-width': 2
         }
     });
+
+    let legendSymbolZug = {
+        text : "Zug",
+        symbolType: "line",
+        lineColor: "#EEBB00",
+        lineThickness: 2,
+    }
+
+    if(!legendSymbolsAdded)
+    {        
+        addLegendSymbol("#strategisches-netz-pt", legendSymbolZug);
+    }
+
     console.log("Loaded Zugliniennetz...")
 
 
@@ -146,6 +175,19 @@ function addStrategicNetworkPT(map) {
             'text-halo-width': 2
         }
     });
+
+    let legendSymbolStadtBahn = {
+        text : "Stadtbahn",
+        symbolType: "line",
+        lineColor: "#22CC22",
+        lineThickness: 2,
+    }
+
+    if(!legendSymbolsAdded)
+    {        
+        addLegendSymbol("#strategisches-netz-pt", legendSymbolStadtBahn);
+    }
+
     console.log("Loaded Stadtbahn...")
 
 
@@ -156,23 +198,7 @@ function addStrategicNetworkPT(map) {
         data: 'data/geojson/strategic-networks/pt/haltestellen.geojson',
         generateId: true
     });
-    map.addLayer({
-        'id': 'haltestellen-outlines',
-        'type': 'circle',
-        'source': 'strategicNetworkHaltestellen',
-        minzoom: 12,
-        'layout': {
-        'visibility': 'none',
-        },
-        paint: {
-            'circle-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                11, 4,
-                16, 8
-            ], // Get size from feature property
-            'circle-color': '#000000', // Get color from feature property
-        }
-    });
+
     map.addLayer({
         id: 'haltestellen-fill',
         type: 'circle',
@@ -188,8 +214,24 @@ function addStrategicNetworkPT(map) {
                 16, 7
             ], // Get size from feature property
             'circle-color': '#FFFFFF', // Get color from feature property
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#000000'
         }
     });
+
+    let legendSymbolHaltestellen = {
+        text : "Haltestellen",
+        symbolType: "circle",
+        fill: "#FFFFFF",
+    }
+
+    if(!legendSymbolsAdded)
+    {
+        addLegendSymbol("#strategisches-netz-pt", legendSymbolHaltestellen);
+    }
+
+
+    legendSymbolsAdded = true;
     console.log("Loaded Haltestellen...")
 
   }

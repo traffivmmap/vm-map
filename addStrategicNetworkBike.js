@@ -1,6 +1,6 @@
-let legendSymbolsAdded = false
+let legendSymbolsAdded = false;
 
-function addStrategicNetworkBike(map)
+export function addStrategicNetworkBike(map)
 {
 
 
@@ -81,10 +81,10 @@ function addStrategicNetworkBike(map)
  
         if(!legendSymbolsAdded)
         {        
-            $("#strategisches-netz-rad").parent().parent().append("<div style='margin-left: 20px'>RadVis RadNETZ Kommunen");
             addLegendSymbol("#strategisches-netz-rad", legendSymbolAlltag);
             addLegendSymbol("#strategisches-netz-rad", legendSymbolFreizeit);
             addLegendSymbol("#strategisches-netz-rad", legendSymbolAlltagFreizeit);
+            $("#strategisches-netz-rad").parent().after("<div style='margin-left: 20px'>RadVis RadNETZ Kommunen")
         }
 
 
@@ -169,10 +169,10 @@ function addStrategicNetworkBike(map)
 
     if(!legendSymbolsAdded)
     {
-        $("#strategisches-netz-rad").parent().parent().append("<div style='margin-left: 20px'>RadVis RadNETZ Kreise");
         addLegendSymbol("#strategisches-netz-rad", legendSymbolAlltag);
         addLegendSymbol("#strategisches-netz-rad", legendSymbolFreizeit);
         addLegendSymbol("#strategisches-netz-rad", legendSymbolAlltagFreizeit);
+        $("#strategisches-netz-rad").parent().after("<div style='margin-left: 20px'>RadVis RadNETZ Kreise");
     }
 
     //-------------------------------------------------------------------------Land-----------------------------------------------------
@@ -229,10 +229,10 @@ function addStrategicNetworkBike(map)
 
     if(!legendSymbolsAdded)
     {
-        $("#strategisches-netz-rad").parent().parent().append("<div style='margin-left: 20px'>RadVis RadNETZ Land");
         addLegendSymbol("#strategisches-netz-rad", legendSymbolAlltag);
         addLegendSymbol("#strategisches-netz-rad", legendSymbolFreizeit);
         addLegendSymbol("#strategisches-netz-rad", legendSymbolAlltagFreizeit);
+        $("#strategisches-netz-rad").parent().after("<div style='margin-left: 20px'>RadVis RadNETZ Land");
     }
 
     //------------------------------------------OSM--------------------------------------------------
@@ -262,7 +262,7 @@ function addStrategicNetworkBike(map)
 
 
         
-    legendSymbolOSM = {
+    let legendSymbolOSM = {
         text : "OSM Radnetz",
         symbolType: "line",
         lineColor: "#00CC00",
@@ -271,7 +271,6 @@ function addStrategicNetworkBike(map)
 
     if(!legendSymbolsAdded)
     {
-        $("#strategisches-netz-rad").parent().parent().append("<div style='margin-left: 20px'>OSM");
         addLegendSymbol("#strategisches-netz-rad", legendSymbolOSM);
     }
 
@@ -283,25 +282,9 @@ function addStrategicNetworkBike(map)
         data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Asharing_stations_bicycle&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326',
         generateId: true
     });
+    
     map.addLayer({
-        'id': 'bikeSharingStations-outlines',
-        'type': 'circle',
-        'source': 'strategicNetworkBikeSharingStations',
-        minzoom: 10,
-        'layout': {
-        'visibility': 'none',
-        },
-        paint: {
-            'circle-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                11, 4,
-                16, 8
-            ], // Get size from feature property
-            'circle-color': '#000000', // Get color from feature property
-        }
-    });
-    map.addLayer({
-        'id': 'bikeSharingStations-fill',
+        'id': 'bikeSharingStations',
         'type': 'circle',
         'source': 'strategicNetworkBikeSharingStations',
         minzoom: 10,
@@ -315,10 +298,12 @@ function addStrategicNetworkBike(map)
                 16, 7
             ], // Get size from feature property
             'circle-color': '#FFFF00', // Get color from feature property
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#000000'
         }
     });
         
-    legendSymbolBikeSharingStation = {
+    let legendSymbolBikeSharingStation = {
         text : "Bikesharing-Stationen",
         symbolType: "circle",
         fill: "#FFFF00",
@@ -326,7 +311,6 @@ function addStrategicNetworkBike(map)
 
     if(!legendSymbolsAdded)
     {
-        $("#strategisches-netz-rad").parent().parent().append("<div style='margin-left: 20px'>Weiteres");
         addLegendSymbol("#strategisches-netz-rad", legendSymbolBikeSharingStation);
     }
 
@@ -339,25 +323,9 @@ function addStrategicNetworkBike(map)
         data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Aparking_sites_bicycle&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326',
         generateId: true
     });
+
     map.addLayer({
-        'id': 'Fahrradabstellanlagen-outlines',
-        'type': 'circle',
-        'source': 'strategicNetworkBikeFahrradabstellanlagen',
-        minzoom: 10,
-        'layout': {
-        'visibility': 'none',
-        },
-        paint: {
-            'circle-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                11, 4,
-                16, 8
-            ], // Get size from feature property
-            'circle-color': '#000000', // Get color from feature property
-        }
-    });
-    map.addLayer({
-        'id': 'Fahrradabstellanlagen-fill',
+        'id': 'Fahrradabstellanlagen',
         'type': 'circle',
         'source': 'strategicNetworkBikeFahrradabstellanlagen',
         minzoom: 10,
@@ -371,6 +339,8 @@ function addStrategicNetworkBike(map)
                 16, 7
             ], // Get size from feature property
             'circle-color': '#00DD00', // Get color from feature property
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#000000'
         }
     });
         

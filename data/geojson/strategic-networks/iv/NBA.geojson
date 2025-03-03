@@ -1,0 +1,14 @@
+{
+"type": "FeatureCollection",
+"name": "NBA",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"xy_coordinate_resolution": 1e-06,
+"features": [
+{ "type": "Feature", "properties": { "Strasse": "A6" }, "geometry": { "type": "Point", "coordinates": [ 9.31703, 49.157426 ] } },
+{ "type": "Feature", "properties": { "Strasse": "A6" }, "geometry": { "type": "Point", "coordinates": [ 9.295803, 49.157615 ] } },
+{ "type": "Feature", "properties": { "Strasse": "A81" }, "geometry": { "type": "Point", "coordinates": [ 9.302184, 49.164153 ] } },
+{ "type": "Feature", "properties": { "Strasse": "A6" }, "geometry": { "type": "Point", "coordinates": [ 9.322959, 49.160466 ] } },
+{ "type": "Feature", "properties": { "Strasse": "A6" }, "geometry": { "type": "Point", "coordinates": [ 9.252527, 49.169949 ] } },
+{ "type": "Feature", "properties": { "Strasse": "A81" }, "geometry": { "type": "Point", "coordinates": [ 9.312122, 49.169871 ] } }
+]
+}
