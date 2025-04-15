@@ -2,12 +2,6 @@ let legendSymbolsAdded = false;
 
 export function addStrategicNetworkStreets(map)
 {
-    if(!legendSymbolsAdded)
-    {
-        $("#strategisches-netz-miv").parent().after("<div><a href='info.html' target='_blank'>Info</a></div>")
-    }
-
-
 
     let legendSymbolDirection = {
         text : "Stationierungsrichtung",
