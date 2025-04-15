@@ -195,6 +195,7 @@ html {
   }
   .map-container {
 	height: 50%;
+	padding: 0px;
   }
   .sidebar {
 	font-size: 8pt;
@@ -204,7 +205,12 @@ html {
 
   .button-fit, .dropdownSelect, .legend{
 	font-size:8pt;
-	padding: 8px;
-	margin: 8px;
+	padding: 5px;
+	margin: 5px;
+	}
+
+	.tab {
+		margin-top: 0px;
+		padding: 5px;
 	}
 }
