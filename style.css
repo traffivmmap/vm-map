@@ -1,14 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Source+Sans+3&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200&display=swap');
 
+
+:root {
+	--dark-accent-color: #2a2623;
+	--var-light-accent-color: #ffffff;
+	--border-color: var(--dark-accent-color);
+	--background-tab: var(--dark-accent-color);
+	--checkbox-accent: #fffc00;
+	--var-border-radius: 3px;
+	--var-border-thickness: 1px;
+	--var-border-color: var(--dark-accent-color);
+	--var-margin: 12px;
+	--var-font-light: var(--var-light-accent-color);
+	--var-font-dark: var(--dark-accent-color);
+	--var-padding: 12px;
+	--var-font-family:  "Arial", sans-serif;
+	accent-color: var(--checkbox-accent);
+  }
+  
  
 body,
 html {
 	height: 100%;
 	margin: 0;
-	font-family: "Source Sans 3", sans-serif;
+	/*font-family: "Source Sans 3", sans-serif;*/
+	font-family: var(--var-font-family);
 	font-size:11pt;
-	color:#3a3a3a;
+	color:var(--var-font-dark);
 }
 
 .container {
@@ -29,7 +48,6 @@ html {
 
 .sidebar {
 	width: 420px;
-	background-color: #fbfbfb;
 	flex-shrink:0;
 	display: flex;
 	flex-direction: column;
@@ -97,49 +115,72 @@ html {
 .button-fit, .dropdownSelect, .legend{
 	position: relative;
 	z-index:100000;
-	background-color: white;
-	padding: 20px;
-	border-radius: 8px;
+	background-color: var(--var-light-accent-color);
+	padding: var(--var-padding);
+	border-radius: var(--var-border-radius);
 	margin:20px;
 	border: none;
 	filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.25));
 	width: fit-content;
-	font-family: "Source Sans 3", sans-serif;
+	font-family: var(--var-font-family);
 	font-size:10pt;
-	color:#3a3a3a;
+	color: var(--var-font-dark);
 }
 
 .tab {
-	border: 1px solid #d8d8d8;
+	background: var(--dark-accent-color);
+	border: var(--var-border-thickness) solid var(--var-border-color);
 	position: relative;
-	border-radius: 8px 8px 0px 0px;
+	border-radius: var(--var-border-radius) var(--var-border-radius) 0px 0px;
 	flex-grow: 1;
 	margin-top: 8px;
-	color: #969696;
-	padding: 15px;
+	color: var(--var-font-light);
+	padding: var(--var-padding);
 	font-weight: bold;
 	display: flex;
+	transition: background 0.15s ease;
+}
+
+.tab:hover {
+	background: var(--checkbox-accent);
+	color: var(--var-font-dark);	
+}
+
+.tab.active:hover {
+	background: var(--checkbox-accent);
+	color: var(--var-font-dark);	
 }
 
 .tab-body {
 	background-color: #ccc;
-	border-left: 1px solid #d8d8d8;
-	border-right: 1px solid #d8d8d8;
+	border-left: var(--var-border-thickness) solid var(--var-border-color);
+	border-right: var(--var-border-thickness) solid var(--var-border-color);
 	overflow-y: auto;
 	height: 100%;
 	padding: 4px;
 	padding-top: 8px;
-	background: #FFFFFF;
+	background: var(--var-light-accent-color);
 }
 
 .tab.active {
+	border: var(--var-border-thickness) solid var(--var-border-color);
 	background: #FFFFFF;
 	border-bottom: none;
-	color: #3a3a3a;
+	color: var(--var-font-dark);
 }
 
 .tab-container {
 	display: flex; /* or inline-flex */
+}
+
+.info-links {
+	background: var(--dark-accent-color);
+	padding: var(--var-padding);
+	border-left: var(--var-border-thickness) solid var(--var-border-color);
+	border-right: var(--var-border-thickness) solid var(--var-border-color);
+	border-bottom: var(--var-border-thickness) solid var(--var-border-color);
+	border-radius: 0px 0px var(--var-border-radius) var(--var-border-radius);
+	color: var(--var-font-light);
 }
 
 .legend {
@@ -175,6 +216,8 @@ html {
 	flex-direction: column;
 	font-weight: normal;
 }
+
+
 
 .maplibregl-popup {
 	z-index:50000;
