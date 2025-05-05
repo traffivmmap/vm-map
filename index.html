@@ -129,10 +129,10 @@
 	  </div>
 	  <div id="sidebar" class="sidebar">
 		  <div class="tab-container">
-			  <div class="tab" id="tab-bottlenecks">Problemstellen
+			  <div class="tab active" id="tab-bottlenecks">Problemstellen
 				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" checked autocomplete="off">
 			  </div>
-			  <div class="tab active" id="tab-measures"style="border-left: none">Ma&szlig;nahmen
+			  <div class="tab" id="tab-measures"style="border-left: none">Ma&szlig;nahmen
 				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" checked autocomplete="off">
 			  </div>
 			  <div class="tab" id="tab-strategies"style="border-left: none">Strategien
@@ -179,7 +179,7 @@
 	import { addStrategicNetworkBike } from "./addStrategicNetworkBike.js";
 	import { addStrategicNetworkPT } from "./addStrategicNetworkPT.js";
 	import { addStrategicNetworkStreets } from "./addStrategicNetworkStreets.js";
-	// import { addAccidents } from "./addAccidents.js";
+	import { addAccidents } from "./addAccidents.js";
 
     const map = new maplibregl.Map({
         container: 'map',
@@ -211,7 +211,7 @@
 		map.fitBounds([
 			[8.82088, 49.37708],
 			[9.52641, 49.02268]
-        ], { duration: 1000, padding: 64 });
+        ], { duration: 1000, padding: 64 , pitch: 0});
 	});
 
 
@@ -221,7 +221,7 @@
 
 
 		prepareUI();
-		//await loadBottlenecks(); // Load Sidebar entries for the bottlenecks
+		await loadBottlenecks(); // Load Sidebar entries for the bottlenecks
 		//await loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
 
 
@@ -232,11 +232,11 @@
 		addStrategicNetworkBike(map);
 		addStudyArea(map); // Adds Untersuchungsgebiet layer
 		addStrategicNetworkStreets(map);
-		//addAccidents(map);
+		// addAccidents(map);
 		addcommunities(); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
-		//addBottlenecks(); // Adds bottlenecks layer to the map.
+		addBottlenecks(); // Adds bottlenecks layer to the map.
 		handleMapClicks();
 		handleHovering();
 		handlePointer();
@@ -256,15 +256,15 @@
 
 		//await addOtherLayers();
 
-		//await addBottlenecks();
-		//filterBottlenecks();
+		await addBottlenecks();
+		filterBottlenecks();
 		addStrategicNetworkPT(map);
 		addStrategicNetworkBike(map);
 		addStrategicNetworkStreets(map);
 		addStudyArea(map);
 		addcommunities();
 		addCounties();
-		//addBottlenecks();
+		addBottlenecks();
 		console.log("style.load called");
 
 
@@ -406,12 +406,13 @@
 		// add sidebar entry for the bottleneck
 		for (let i = 0; i < data_bottlenecks.features.length; i++) {
 			let feature = data_bottlenecks.features[i];
+			feature.properties.id = i;
 			if(!feature.geometry.coordinates[0]) {
 				console.log("Bottleneck " + i + " had an invalid geometry. Not adding sidebar-entry.");
 				continue;
 			}
 			data_bottlenecks.features[i] = reverse(data_bottlenecks.features[i]);
-			data_bottlenecks.features[i].properties.rotation = 90 + turf.bearing(data_bottlenecks.features[i].geometry.coordinates[0][0], data_bottlenecks.features[i].geometry.coordinates[0][1]);	
+			data_bottlenecks.features[i].properties.rotation = 90 + turf.bearing(data_bottlenecks.features[i].geometry.coordinates[0], data_bottlenecks.features[i].geometry.coordinates[1]);	
 			
 			// Create and return a category group, but only if it not already exists
 			let catGroup = CreateCategoryGroup(feature.properties.Situation);
@@ -474,7 +475,7 @@
 				event.stopPropagation();	
 				let params = {
 					bearing: bearing,
-					center: data_bottlenecks.features[i].geometry.coordinates[0][0],
+					center: data_bottlenecks.features[i].geometry.coordinates[0],
 					zoom: zoom,
 					pitch: pitch,
 					speed: 0.5,
@@ -563,6 +564,7 @@
 				'Abendspitze','#086dba',
 				'Morgenspitze & Abendspitze' , '#db6b9f',
 				'Unfall','red',
+				'ÖPNV', 'darkcyan',
 				'black'
 		];
 
@@ -599,15 +601,15 @@
 			  'icon-opacity': strokeopacity,
 			  'icon-color': 'rgba(0,0,0,0)',
 			  'icon-halo-width': 1,
-				'icon-halo-blur': 8,
+				'icon-halo-blur': 6,
 				'icon-halo-color': 'rgba(0,0,0,0.25)',
 			},
 			'layout': {
-				'icon-offset':[4* (1/1.75) * 1.1, -offset * (1/1.75)],
+				'icon-offset':[4* (1/1.25) * 1.4, -offset * (1/1.25)],
 				'icon-image': 'arrow-big-sdf',
 				'symbol-placement': 'point',
 				'symbol-spacing': 1,
-				'icon-size':1.75,
+				'icon-size':1.25,
 				'icon-pitch-alignment': "map",
 				'icon-rotation-alignment': "map",
 				'icon-rotate': ['get', 'rotation'],
@@ -624,11 +626,11 @@
               	'icon-color': colorrule,
 			},
 			'layout': {
-				'icon-offset': [4 * (1/0.6), -offset * (1/0.6)],
+				'icon-offset': [4 * (1/0.4) * 1.4, -offset * (1/0.4)],
 				'icon-image': 'arrow-sdf',
 				'symbol-placement': 'point',
 				'symbol-spacing': 1,
-				'icon-size':0.6,
+				'icon-size':0.4,
 				//'icon-size':  ['get', 'iconsize'],
 				'icon-pitch-alignment': "map",
 				'icon-rotation-alignment': "map",
@@ -1031,9 +1033,9 @@
 	function prepareUI(){
 		console.log("preparing UI");
 		$(".tab").click(openTab); // adds the Tab clicking functionality
-		$("#bottlenecks").toggle(); // hides the bottlenecks div in the sidebar.
+		//$("#bottlenecks").toggle(); // hides the bottlenecks div in the sidebar.
 		$("#strategies").toggle(); // hides the strategies div in the sidebar.
-		$("#tab-measures > #visibility-checkbox").css("margin-right", "14px");
+		$("#measures").toggle(); // hides the measures div in the sidebar.
 
 		$("#tab-bottlenecks > #visibility-checkbox").on('click',  (event) => {		
 			if($(event.target).prop('checked'))
@@ -1153,7 +1155,7 @@
 		sidebarEntries.slideDown(400 , () => {
 			entriesCompleted++;					
 			if (entriesCompleted === sidebarEntries.length) {
-				$('.tab-body').animate({scrollTop: sidebarEntry.offsetTop + sidebarEntry.offsetParent.offsetTop - 72 - $('.sidebar').offset().top }, 1500);
+				$('.tab-body').animate({scrollTop: sidebarEntry.offsetTop + sidebarEntry.offsetParent.offsetTop - 64 - $('.sidebar').offset().top }, 1500);
 			}
 		});
 	}
@@ -1364,7 +1366,7 @@ function handleMapClicks(){
 				console.log("Problemstelle angeklickt");
 				console.log(topmostFeature.properties.id)
 				// ID comes from the geojson.
-				let id = topmostFeature.properties.id -1
+				let id = topmostFeature.properties.id 
 				// check which layer is active
 				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
 				{
