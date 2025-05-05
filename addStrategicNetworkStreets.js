@@ -417,7 +417,8 @@ if(!legendSymbolsAdded)
 // Parkplätze und P+R
 map.addSource('parking-sites', {
     type: 'geojson',
-    data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/parking_sites_car/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW:parking_sites_car&outputFormat=application/json'
+    data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Apark-api_car_buildings&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326'
+         //
 });
 
 map.addLayer({
