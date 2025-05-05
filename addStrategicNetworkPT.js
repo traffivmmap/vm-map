@@ -230,8 +230,47 @@ export function addStrategicNetworkPT(map) {
         addLegendSymbol("#strategisches-netz-pt", legendSymbolHaltestellen);
     }
 
+    console.log("Loaded Haltestellen...")
+        //--------------------------------------------Mobilitätsstationen-----------------------------------
+
+        map.addSource('strategicNetworkMobilitätsstationen', {
+            type: 'geojson',
+            data: 'data/geojson/strategic-networks/pt/Mobilstationen.geojson',
+            generateId: true
+        });
+    
+        map.addLayer({
+            id: 'layer-Mobilitätsstationen',
+            type: 'circle',
+            source: 'strategicNetworkMobilitätsstationen',
+            minzoom: 12,
+            layout: {
+                'visibility': 'none',
+            },
+            paint: {
+                'circle-radius': [
+                    'interpolate', ['linear'], ['zoom'],
+                    11, 3,
+                    16, 7
+                ], 
+                'circle-color': 'forestgreen',
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#000000'
+            }
+        });
+    
+        let legendSymbolMobilitätsstationen = {
+            text : "Mobilitätsstationen",
+            symbolType: "circle",
+            fill: "forestgreen",
+        }
+    
+        if(!legendSymbolsAdded)
+        {
+            addLegendSymbol("#strategisches-netz-pt", legendSymbolMobilitätsstationen);
+        }
 
     legendSymbolsAdded = true;
-    console.log("Loaded Haltestellen...")
+    console.log("Loaded Mobilitätsstationen...")
 
   }

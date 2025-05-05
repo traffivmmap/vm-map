@@ -109,7 +109,7 @@
 			</div>
 			<div></br>Strategische Netze</div>
 			<div class="legend-item">
-				<input type="checkbox" id="strategisches-netz-pt" value="strategisches-netz-pt" onchange="switchlayer(['bus-lines', 'bus-labels', 'zug-lines', 'zug-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'haltestellen-fill', 'haltestellen-outlines'], 'strategisches-netz-pt')" />
+				<input type="checkbox" id="strategisches-netz-pt" value="strategisches-netz-pt" onchange="switchlayer(['bus-lines', 'bus-labels', 'zug-lines', 'zug-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'haltestellen-fill', 'haltestellen-outlines', 'layer-Mobilitätsstationen'], 'strategisches-netz-pt')" />
 				<label for="strategisches-netz-pt">ÖV</label>
 			</div>
 			<div class="legend-item">
@@ -130,10 +130,10 @@
 	  <div id="sidebar" class="sidebar">
 		  <div class="tab-container">
 			  <div class="tab active" id="tab-bottlenecks">Problemstellen
-				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" checked autocomplete="off">
+				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" autocomplete="off">
 			  </div>
 			  <div class="tab" id="tab-measures"style="border-left: none">Ma&szlig;nahmen
-				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" checked autocomplete="off">
+				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" autocomplete="off">
 			  </div>
 			  <div class="tab" id="tab-strategies"style="border-left: none">Strategien
 				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" autocomplete="off">
@@ -257,7 +257,6 @@
 		//await addOtherLayers();
 
 		await addBottlenecks();
-		filterBottlenecks();
 		addStrategicNetworkPT(map);
 		addStrategicNetworkBike(map);
 		addStrategicNetworkStreets(map);
@@ -659,6 +658,8 @@
 				],
             },
         });
+
+		filterBottlenecks();
 
 	}
 
@@ -1186,7 +1187,7 @@
 
 	function filterBottlenecks() {
 
-		let filter
+		let filter = "no filter"
 		if($('#tab-bottlenecks :input[type="checkbox"]').prop('checked'))
 		{
 			let key = $("#bottlenecks").find("input[type='checkbox']:checked").closest(".category-group").map(function() {return $(this).data("category");}).get();
@@ -1222,6 +1223,8 @@
 		{
 			main.parent().parent().siblings("#bottlenecks").find('input:checkbox:checked').trigger('click');
 		}
+
+		filterBottlenecks();
 	}
 
 	function toggleMeasuresLayer() {
@@ -1309,6 +1312,7 @@ function handleMapClicks(){
 			case 'dwista-layer':
 			case 'lsa-layer':
 			case 'lsa-osm-layer':
+			case 'layer-Mobilitätsstationen':
 
 				Object.keys(topmostFeature.properties).forEach(function(key) {
 					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
@@ -1589,7 +1593,7 @@ function Print(format) {
 
 function handlePointer()
 {
-	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',
+	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines', 'layer-Mobilitätsstationen',
 					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations',
 					'Fahrradabstellanlagen',
 					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer']; // Array of layers to apply the effect
