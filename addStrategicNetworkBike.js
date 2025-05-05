@@ -344,19 +344,6 @@ export function addStrategicNetworkBike(map)
         }
     });
         
-    legendSymbolBikeSharingStation = {
-        text : "Lastenrad-Leihstationen",
-        symbolType: "circle",
-        fill: "#00DD00",
-    }
-
-    if(!legendSymbolsAdded)
-    {
-        addLegendSymbol("#strategisches-netz-rad", legendSymbolBikeSharingStation);
-    }
-
-
-
     legendSymbolsAdded = true    
     console.log("Loaded Bike network...")
 
