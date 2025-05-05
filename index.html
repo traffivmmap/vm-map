@@ -119,7 +119,7 @@
 				<label for="strategisches-netz-rad">Rad</label>
 			</div>
 			<div class="legend-item">
-				<input type="checkbox" id="strategisches-netz-miv" value="strategisches-netz-miv" onchange="switchlayer(['K-line', 'K-name-label', 'K-direction-arrow', 'L-line', 'L-name-label', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'B-name-label', 'node-label', 'node-symbol', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer'], 'strategisches-netz-miv')" />
+				<input type="checkbox" id="strategisches-netz-miv" value="strategisches-netz-miv" onchange="switchlayer(['K-line', 'K-name-label', 'K-direction-arrow', 'L-line', 'L-name-label', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'B-name-label', 'node-label', 'node-symbol', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer'], 'strategisches-netz-miv')" />
 				<label for="strategisches-netz-miv">MIV</label>
 			</div>
 		</div>
@@ -1307,6 +1307,8 @@ function handleMapClicks(){
 			case 'km-symbol':
 			case 'parking-sites':
 			case 'dwista-layer':
+			case 'lsa-layer':
+			case 'lsa-osm-layer':
 
 				Object.keys(topmostFeature.properties).forEach(function(key) {
 					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
@@ -1590,7 +1592,7 @@ function handlePointer()
 	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',
 					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations',
 					'Fahrradabstellanlagen',
-					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer']; // Array of layers to apply the effect
+					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer']; // Array of layers to apply the effect
 
 	layers.forEach(layer => {
 		map.on('mouseenter', layer, () => {

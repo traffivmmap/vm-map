@@ -414,7 +414,7 @@ if(!legendSymbolsAdded)
 
 // #endregion BAB
 
-// Parkplätze und P+R
+// # region Parkplätze und P+R
 map.addSource('parking-sites', {
     type: 'geojson',
     data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Apark-api_car_buildings&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326'
@@ -448,6 +448,10 @@ if(!legendSymbolsAdded)
     addLegendSymbol("#strategisches-netz-miv", legendSymbolParken);
 }
 
+// # endregion Parkplätze und P+R
+
+// # region NBA
+
 map.addSource('dwista-source', {
     type: 'geojson',
     data: 'data/geojson/strategic-networks/iv/NBA.geojson'
@@ -479,6 +483,68 @@ if(!legendSymbolsAdded)
 {
     addLegendSymbol("#strategisches-netz-miv", legendSymbolNBA);
 }
+
+// # endregion NBA
+
+// # region LSA
+
+map.addSource('lsa-source', {
+    type: 'geojson',
+    data: 'data/geojson/strategic-networks/iv/LSA_Strassendatenbank.geojson'
+});
+
+map.addLayer({
+    id: 'lsa-layer',
+    type: 'circle',
+    source: 'lsa-source',
+    'minzoom': 11,
+    'layout': {
+        'visibility': 'none',
+    },
+    paint: {
+        'circle-radius': 4,
+        'circle-color': 'orange',
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#000000'
+    }
+});
+
+map.addSource('lsa-osm-source', {
+    type: 'geojson',
+    data: 'data/geojson/strategic-networks/iv/LSA_OSM.geojson'
+});
+
+map.addLayer({
+    id: 'lsa-osm-layer',
+    type: 'circle',
+    source: 'lsa-osm-source',
+    'minzoom': 11,
+    'layout': {
+        'visibility': 'none',
+    },
+    paint: {
+        'circle-radius': 4,
+        'circle-color': 'orange',
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#000000'
+    }
+});
+
+let legendSymbolLSA = {
+    text : "LSA",
+    symbolType: "circle",
+    fill: "orange",
+}
+
+if(!legendSymbolsAdded)
+{
+    addLegendSymbol("#strategisches-netz-miv", legendSymbolLSA);
+}
+
+
+
+
+// # endregion LSA
 
     legendSymbolsAdded = true    
 
