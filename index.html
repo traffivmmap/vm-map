@@ -1312,7 +1312,6 @@ function handleMapClicks(){
 			case 'dwista-layer':
 			case 'lsa-layer':
 			case 'lsa-osm-layer':
-			case 'layer-Mobilitätsstationen':
 
 				Object.keys(topmostFeature.properties).forEach(function(key) {
 					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
@@ -1429,6 +1428,13 @@ function handleMapClicks(){
 					.setLngLat(e.lngLat)
 					.setHTML(txt)
 					.addTo(map)
+				break;
+			case 'layer-Mobilitätsstationen':
+				txt = "Mobilstation:<br>Dieser Bereich stellt einen multimodalen Knoten dar, von dem aus mindestens drei verschiedene Mobilitätsformen fußläufig (Entfernung unter 100 Meter) erreicht werden können.";
+				new maplibregl.Popup()	
+					.setLngLat(e.lngLat)
+					.setHTML(txt)
+					.addTo(map);
 				break;
 			default:
 				console.log("Anderer layer angeklickt");

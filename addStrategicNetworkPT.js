@@ -2,6 +2,44 @@ let legendSymbolsAdded = false;
 
 export function addStrategicNetworkPT(map) {
 
+//--------------------------------------------Mobilitätsstationen-----------------------------------
+
+        map.addSource('strategicNetworkMobilitätsstationen', {
+            type: 'geojson',
+            data: 'data/geojson/strategic-networks/pt/Mobilstationen.geojson',
+            generateId: true
+        });
+    
+        map.addLayer({
+            id: 'layer-Mobilitätsstationen',
+            type: 'fill',
+            source: 'strategicNetworkMobilitätsstationen',
+            minzoom: 10,
+            layout: {
+                'visibility': 'none',
+            },
+            paint: {
+                'fill-color': 'forestgreen', // Get color from feature property
+                'fill-opacity': 0.5,
+                //'fill-outline-color': "rgba(34, 139, 34, 0.5)",
+            }
+        });
+    
+        let legendSymbolMobilitätsstationen = {
+            text : "Mobilstationen",
+            symbolType: "rectangle",
+            fill: "rgba(34, 139, 34, 0.5)",
+            strokeThickness: 0,
+        }
+    
+        if(!legendSymbolsAdded)
+        {
+            addLegendSymbol("#strategisches-netz-pt", legendSymbolMobilitätsstationen);
+        }
+
+
+    console.log("Loaded Mobilitätsstationen...")
+
 
     //----------------------------- Bus -----------------------------------
     map.addSource('strategicNetworkBus', {
@@ -231,46 +269,6 @@ export function addStrategicNetworkPT(map) {
     }
 
     console.log("Loaded Haltestellen...")
-        //--------------------------------------------Mobilitätsstationen-----------------------------------
-
-        map.addSource('strategicNetworkMobilitätsstationen', {
-            type: 'geojson',
-            data: 'data/geojson/strategic-networks/pt/Mobilstationen.geojson',
-            generateId: true
-        });
-    
-        map.addLayer({
-            id: 'layer-Mobilitätsstationen',
-            type: 'circle',
-            source: 'strategicNetworkMobilitätsstationen',
-            minzoom: 12,
-            layout: {
-                'visibility': 'none',
-            },
-            paint: {
-                'circle-radius': [
-                    'interpolate', ['linear'], ['zoom'],
-                    11, 3,
-                    16, 7
-                ], 
-                'circle-color': 'forestgreen',
-                'circle-stroke-width': 1,
-                'circle-stroke-color': '#000000'
-            }
-        });
-    
-        let legendSymbolMobilitätsstationen = {
-            text : "Mobilitätsstationen",
-            symbolType: "circle",
-            fill: "forestgreen",
-        }
-    
-        if(!legendSymbolsAdded)
-        {
-            addLegendSymbol("#strategisches-netz-pt", legendSymbolMobilitätsstationen);
-        }
-
+        
     legendSymbolsAdded = true;
-    console.log("Loaded Mobilitätsstationen...")
-
   }
