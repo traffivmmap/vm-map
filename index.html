@@ -119,7 +119,7 @@
 				<label for="strategisches-netz-rad">Rad</label>
 			</div>
 			<div class="legend-item">
-				<input type="checkbox" id="strategisches-netz-miv" value="strategisches-netz-miv" onchange="switchlayer(['K-line', 'K-name-label', 'K-direction-arrow', 'L-line', 'L-name-label', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'B-name-label', 'node-label', 'node-symbol', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer'], 'strategisches-netz-miv')" />
+				<input type="checkbox" id="strategisches-netz-miv" value="strategisches-netz-miv" onchange="switchlayer(['K-line', 'K-name-label', 'K-direction-arrow', 'L-line', 'L-name-label', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'B-name-label', 'node-label', 'node-symbol', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing'], 'strategisches-netz-miv')" />
 				<label for="strategisches-netz-miv">MIV</label>
 			</div>
 
@@ -127,6 +127,10 @@
 			<div class="legend-item">
 				<input type="checkbox" id="accidents" value="accidents" onchange="switchlayer(['accidents-layer'], 'accidents')" />
 				<label for="accidents">Unfälle (Heilbronn)</label>
+			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="noise" value="noise" onchange="switchlayer(['noise-layer'], 'noise')" />
+				<label for="noise">Lärm</label>
 			</div>
 
 		</div>
@@ -187,6 +191,7 @@
 	import { addStrategicNetworkPT } from "./addStrategicNetworkPT.js";
 	import { addStrategicNetworkStreets } from "./addStrategicNetworkStreets.js";
 	import { addAccidents } from "./addAccidents.js";
+	// import { addNoise } from "./addNoise.js";
 
     const map = new maplibregl.Map({
         container: 'map',
@@ -240,6 +245,7 @@
 		addStudyArea(map); // Adds Untersuchungsgebiet layer
 		addStrategicNetworkStreets(map);
 		addAccidents(map);
+		// addNoise(map);
 		addcommunities(); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
@@ -269,6 +275,7 @@
 		addStrategicNetworkStreets(map);
 		addStudyArea(map);
 		addAccidents(map);
+		// addNoise(map);
 		addcommunities();
 		addCounties();
 		addBottlenecks();
@@ -1320,6 +1327,7 @@ function handleMapClicks(){
 			case 'dwista-layer':
 			case 'lsa-layer':
 			case 'lsa-osm-layer':
+			case 'layer-car-sharing':
 
 				Object.keys(topmostFeature.properties).forEach(function(key) {
 					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
@@ -1610,7 +1618,7 @@ function handlePointer()
 	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines', 'layer-Mobilitätsstationen',
 					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations',
 					'Fahrradabstellanlagen',
-					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer']; // Array of layers to apply the effect
+					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing']; // Array of layers to apply the effect
 
 	layers.forEach(layer => {
 		map.on('mouseenter', layer, () => {

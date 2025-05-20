@@ -541,10 +541,44 @@ if(!legendSymbolsAdded)
     addLegendSymbol("#strategisches-netz-miv", legendSymbolLSA);
 }
 
-
-
-
 // # endregion LSA
+
+// # region Car Sharing
+
+map.addSource('source-car-sharing', {
+    type: 'geojson',
+    data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Asharing_stations_car&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326'
+});
+
+map.addLayer({
+    id: 'layer-car-sharing',
+    type: 'circle',
+    source: 'source-car-sharing',
+    'minzoom': 11,
+    'layout': {
+        'visibility': 'none',
+    },
+    paint: {
+        'circle-radius': 4,
+        'circle-color': 'aqua',
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#000000'
+    }
+});
+
+let legendSymbolCarSharing = {
+    text : "Car Sharing",
+    symbolType: "circle",
+    fill: "aqua",
+}
+
+if(!legendSymbolsAdded)
+{
+    addLegendSymbol("#strategisches-netz-miv", legendSymbolCarSharing);
+}
+
+
+// #endregion Car Sharing
 
     legendSymbolsAdded = true    
 
