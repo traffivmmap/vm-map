@@ -114,7 +114,7 @@
 			</div>
 			<div class="legend-item">
 				<input type="checkbox" id="strategisches-netz-rad" value="strategisches-netz-rad" onchange="switchlayer(['RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer',
-																														 'bikeSharingStations',
+																														 'bikeSharingStations', 'Scooter-Leihstationen',
 																														 'Fahrradabstellanlagen'], 'strategisches-netz-rad')" />
 				<label for="strategisches-netz-rad">Rad</label>
 			</div>
@@ -191,7 +191,7 @@
 	import { addStrategicNetworkPT } from "./addStrategicNetworkPT.js";
 	import { addStrategicNetworkStreets } from "./addStrategicNetworkStreets.js";
 	import { addAccidents } from "./addAccidents.js";
-	// import { addNoise } from "./addNoise.js";
+	import { addNoise } from "./addNoise.js";
 
     const map = new maplibregl.Map({
         container: 'map',
@@ -245,7 +245,7 @@
 		addStudyArea(map); // Adds Untersuchungsgebiet layer
 		addStrategicNetworkStreets(map);
 		addAccidents(map);
-		// addNoise(map);
+		addNoise(map);
 		addcommunities(); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
@@ -275,7 +275,7 @@
 		addStrategicNetworkStreets(map);
 		addStudyArea(map);
 		addAccidents(map);
-		// addNoise(map);
+		addNoise(map);
 		addcommunities();
 		addCounties();
 		addBottlenecks();
@@ -1318,6 +1318,7 @@ function handleMapClicks(){
 			case 'RadNETZKom-layer':
 			case 'RadOSM-layer':
 			case 'bikeSharingStations':
+			case 'Scooter-Leihstationen':
 			case 'Fahrradabstellanlagen':
 			case 'BAB-line':
 			case 'BAB-name-label':
@@ -1616,7 +1617,7 @@ function Print(format) {
 function handlePointer()
 {
 	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines', 'layer-Mobilitätsstationen',
-					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations',
+					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations', 'Scooter-Leihstationen',
 					'Fahrradabstellanlagen',
 					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing']; // Array of layers to apply the effect
 

@@ -1,6 +1,6 @@
 let legendSymbolsAdded = false;
 
-export function addStrategicNetworkBike(map)
+export async function addStrategicNetworkBike(map)
 {
 
 
@@ -274,53 +274,13 @@ export function addStrategicNetworkBike(map)
         addLegendSymbol("#strategisches-netz-rad", legendSymbolOSM);
     }
 
-
-    //------------------------------------------------------------------------------------------- Bikesharing stations ------------------------------------------------------------
-
-    map.addSource('strategicNetworkBikeSharingStations', {
-        type: 'geojson',
-        data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Asharing_stations_bicycle&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326',
-        generateId: true
-    });
-    
-    map.addLayer({
-        'id': 'bikeSharingStations',
-        'type': 'circle',
-        'source': 'strategicNetworkBikeSharingStations',
-        minzoom: 10,
-        'layout': {
-        'visibility': 'none',
-        },
-        paint: {
-            'circle-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                11, 3,
-                16, 7
-            ], // Get size from feature property
-            'circle-color': '#FFFF00', // Get color from feature property
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#000000'
-        }
-    });
-        
-    let legendSymbolBikeSharingStation = {
-        text : "Bikesharing-Stationen",
-        symbolType: "circle",
-        fill: "#FFFF00",
-    }
-
-    if(!legendSymbolsAdded)
-    {
-        addLegendSymbol("#strategisches-netz-rad", legendSymbolBikeSharingStation);
-    }
-
-
-
+    //------------------------------------------------------------------ Fahrradabstellanlagen ------------------------------------------------------------
     
 
     map.addSource('strategicNetworkBikeFahrradabstellanlagen', {
         type: 'geojson',
-        data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Aparking_sites_bicycle&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326',
+        data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Apark-api_bicycle&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326',
+            //'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Apark-api_bicycle&maxFeatures=50&outputFormat=application%2Fjson'
         generateId: true
     });
 
@@ -343,10 +303,106 @@ export function addStrategicNetworkBike(map)
             'circle-stroke-color': '#000000'
         }
     });
+
+        let legendSymbolBikeParking = {
+        text : "Fahrradabstellanlagen",
+        symbolType: "circle",
+        fill: "#00DD00",
+    }
+
+    if(!legendSymbolsAdded)
+    {
+        addLegendSymbol("#strategisches-netz-rad", legendSymbolBikeParking);
+    }
+
+
+    //------------------------------------------------------------------------------------------- Bikesharing stations ------------------------------------------------------------
+ 
+    map.addSource('strategicNetworkBikeSharingStations', {
+        type: 'geojson',
+        data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Asharing_stations_bicycle&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326',
+        generateId: true
+    });
+    
+    map.addLayer({
+        'id': 'bikeSharingStations',
+        'type': 'circle',
+        'source': 'strategicNetworkBikeSharingStations',
+        minzoom: 10,
+        'layout': {
+        'visibility': 'none',
+        },
+        paint: {
+            'circle-radius': [
+                'interpolate', ['linear'], ['zoom'],
+                11, 3,
+                16, 7
+            ], // Get size from feature property
+            'circle-color': '#FFFF00', // Get color from feature property
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#000000',
+            'circle-translate': [4, 0],
+        }
+    });
         
-    legendSymbolsAdded = true    
-    console.log("Loaded Bike network...")
+    let legendSymbolBikeSharingStation = {
+        text : "Bikesharing-Stationen",
+        symbolType: "circle",
+        fill: "#FFFF00",
+    }
+
+    if(!legendSymbolsAdded)
+    {
+        addLegendSymbol("#strategisches-netz-rad", legendSymbolBikeSharingStation);
+    }
+
+
 
     // -----------------------------------------------------------------------Lastenrad-Leihstationen (Gibt im Untersuchungsgebiet in MobiData keine)-------------------------------------------------------------
+// -------------------------------------------- Scooter-Leihstationen ------------------------------------------------------------
+
+    map.addSource('strategicNetworkBikeScooterLeihstationen', {
+        type: 'geojson',
+        data: 'https://api.mobidata-bw.de/geoserver/MobiData-BW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=MobiData-BW%3Asharing_stations_scooters_standing&outputFormat=application%2Fjson&BBOX=8.8161400718472898,49.0203349136633904,9.5276227301316343,49.3876212646939976,EPSG:4326&srsName=EPSG:4326',
+            //''
+        generateId: true
+    });
+
+    map.addLayer({
+        'id': 'Scooter-Leihstationen',
+        'type': 'circle',
+        'source': 'strategicNetworkBikeScooterLeihstationen',
+        minzoom: 10,
+        'layout': {
+        'visibility': 'none',
+        },
+        paint: {
+            'circle-radius': [
+                'interpolate', ['linear'], ['zoom'],
+                11, 3,
+                16, 7
+            ], // Get size from feature property
+            'circle-color': '#0000EE', // Get color from feature property
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#000000',
+            'circle-translate': [-4, 0],
+        }
+    });
+
+        let legendSymbolScooterStations = {
+        text : "Scooter-Leihstationen",
+        symbolType: "circle",
+        fill: "#0000EE",
+    }
+
+    if(!legendSymbolsAdded)
+    {
+        addLegendSymbol("#strategisches-netz-rad", legendSymbolScooterStations);
+    } 
+
+
+
+    legendSymbolsAdded = true    
+    console.log("Loaded Bike network...")
 
 }
