@@ -156,9 +156,9 @@
 
 		  <div class="info-links" id="InfoLinks">
 			<div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-			  <a href="info.html" style="color: inherit">Info</a>
-			  <a href="privacy.html" style="color: inherit">Datenschutz</a>
-			  <a href="https://consulting.trafficon.eu/impressum/" style="color: inherit">Impressum</a> 
+			<a href="info.html" style="color: inherit" target="_blank">Info</a>
+			<a href="privacy.html" style="color: inherit" target="_blank">Datenschutz</a>
+			<a href="https://consulting.trafficon.eu/impressum/" style="color: inherit" target="_blank">Impressum</a> 
 			</div>
 		  </div>
 
@@ -213,17 +213,17 @@
 	let cursorOnMarker = false;
 
 	let bbox =  turf.bbox(data_bottlenecks);
-	//map.fitBounds(bbox, { duration: 0, padding: 64 })
-	map.fitBounds([
-			[8.82088, 49.37708],
-			[9.52641, 49.02268]
-        ], { duration: 1, padding: 64 });
+	map.fitBounds(bbox, { duration: 0, padding: 64 })
+	// map.fitBounds([
+	// 		[8.82088, 49.37708],
+	// 		[9.52641, 49.02268]
+    //     ], { duration: 1, padding: 64 });
 	document.getElementById('button-fit').addEventListener('click', () => {
-		// map.fitBounds(bbox, { pitch: 0, padding: 64, });
+		// map.fitBounds(bbox, { duration: 1000, pitch: 0, padding: 64, });
 		map.fitBounds([
 			[8.82088, 49.37708],
 			[9.52641, 49.02268]
-        ], { duration: 1000, padding: 64 , pitch: 0});
+        ], { duration: 1000, padding: 32 , pitch: 0});
 	});
 
 
@@ -462,11 +462,10 @@
 				clone.querySelector(".sidebar-image").src = img_route + image_name;
 				//clone.querySelector(".banner").alt = feature.properties.image;
 			}
-			if(feature.properties.headline && feature.properties.pid) 
-				clone.querySelector(".headline").textContent = feature.properties.pid + ": " + feature.properties.headline;
+
+			clone.querySelector(".headline").textContent = `${feature.properties.pid}: ${feature.properties.headline}`;
 			//clone.querySelector(".cartlink").href = "www.example.com";
-			if(feature.properties.description)
-				clone.querySelector(".description").textContent = feature.properties.description;
+			clone.querySelector(".description").textContent = `${feature.properties.description}`;
 			clone.querySelector(".sidebar-entry").id = id;
 
 			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
@@ -569,27 +568,30 @@
 
 		let arrowthickness = 6;
 		let strokeopacity = 0.9;
-		let offset = -4;
+		let offset =  ['*', -9, ['coalesce', ['get', 'Offset'], 0.6]]; //-4;
 		let outlineColor = 'white'
 		let colorrule = [
-			'match', ['get','Situation'],
-				'Baustelle', 'hsla(51, 90%, 55%, 1)',
-				'Morgenspitze', '#e67c0a',
-				'Abendspitze','#086dba',
-				'Morgenspitze & Abendspitze' , '#db6b9f',
-				'Unfall','red',
-				'ÖPNV', 'darkcyan',
-				'black'
+		'match', ['get','Situation'],
+			'Abendspitze', '#ffb800', // from QGIS
+			'Beeinträchtigung des ÖPNV', '#c80007',
+			'Beeinträchtigung des Radverkehrs', '#d1f700',
+			'Morgenspitze', '#ffff00',
+			'Morgenspitze & Abendspitze', '#FF4500',
+			'Stau', '#b22222',
+			'Unfall', '#ff0000',
+			'Notfall', '#c80007',
+			'Baustelle', 'hsla(51, 90%, 55%, 1)', // original fallback
+			'ÖPNV', 'darkcyan',                   // original
+			'black' // default
 		];
-
-		
+	
 		// add 4 layers: line stroke, arrow-stroke, line-fill and arrow-fill
-		map.addLayer({
+ 		map.addLayer({
             'id': 'layer-problemstellen-stroke',
             'type': 'line',
             'source': 'source-problemstellen',
             'layout': {
-                'line-join': 'round',
+                //'line-join': 'round',
                 'line-cap': 'round',
             },
             'paint': {
@@ -619,7 +621,13 @@
 				'icon-halo-color': 'rgba(0,0,0,0.25)',
 			},
 			'layout': {
-				'icon-offset':[4* (1/1.25) * 1.4, -offset * (1/1.25)],
+								"icon-offset": [
+					"case",
+					["==", ["get", "Offset"], 2], ["literal", [2, 14.4]],
+					["==", ["get", "Offset"], 3], ["literal", [2, 21.6]],
+					["==", ["get", "Offset"], 4], ["literal", [2, 28.8]],
+					["literal", [2, 4.32]] // default
+					],
 				'icon-image': 'arrow-big-sdf',
 				'symbol-placement': 'point',
 				'symbol-spacing': 1,
@@ -638,9 +646,21 @@
 			'symbol-z-order': 'viewport_y',
 			'paint': {
               	'icon-color': colorrule,
-			},
+
+  
+
+					},
 			'layout': {
-				'icon-offset': [4 * (1/0.4) * 1.4, -offset * (1/0.4)],
+			
+				"icon-offset": [
+					"case",
+					["==", ["get", "Offset"], -0.6], ["literal", [0, -13.5]],
+					["==", ["get", "Offset"], 2], ["literal", [0, 45]],
+					["==", ["get", "Offset"], 3], ["literal", [0, 67.5]],
+					["==", ["get", "Offset"], 4], ["literal", [0, 90]],
+					["literal", [0, 13.5]] // default
+					],
+
 				'icon-image': 'arrow-sdf',
 				'symbol-placement': 'point',
 				'symbol-spacing': 1,
@@ -651,15 +671,15 @@
 				'icon-rotate': ['get', 'rotation'],
 				'icon-allow-overlap': true,
    			}
-        }); 
+        });  
 
 		map.addLayer({
             'id': 'layer-problemstellen-fill',
             'type': 'line',
             'source': 'source-problemstellen',
             'layout': {
-                'line-join': 'round',
-                'line-cap': 'round',
+                //'line-join': 'round',
+				'line-cap': 'round',
             },
             'paint': {
 				'line-offset': offset,
@@ -1004,7 +1024,7 @@
 					});
 
 					let bearing = Math.floor(Math.random() * 360);
-					let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
+					let zoom = 13.75 + Math.floor(Math.random() * 2); // 15.99 is the max zoom for the satellite map
 					let pitch = 10 + Math.floor(Math.random() * 60);
 					document.getElementById("strategy-measure-entry-"  + m).addEventListener('click', function() {
 						let marker = document.querySelector("#measure-" + m)
