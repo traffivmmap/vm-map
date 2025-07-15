@@ -217,6 +217,14 @@ html {
 	font-weight: normal;
 }
 
+.legend-dropdown {
+	font-weight: normal;
+	margin-left: 20px;  /* Indent to the right */
+	border: none;
+	background: #f2f2f2;
+	border-radius: var(--var-border-radius);
+}
+
 
 
 .maplibregl-popup {

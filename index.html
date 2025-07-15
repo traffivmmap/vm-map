@@ -100,13 +100,10 @@
 				<label for="landkreise">Landkreise</label>
 			</div>
 			<div class="legend-item">
-				<input type="checkbox" id="gemeinden" value="gemeinden" onchange="switchlayer(['gemeinden-fill', 'gemeinden-line'], 'gemeinden')" />
-				<label for="gemeinden">Gemeinden</label>
-			</div>
-			<div class="legend-item">
 				<input type="checkbox" id="untersuchungsgebiet" value="untersuchungsgebiet" onchange="switchlayer(['untersuchungsgebiet-line'], 'untersuchungsgebiet')" />
 				<label for="untersuchungsgebiet">Untersuchungsgebiet</label>
 			</div>
+			<div id ="gemeinden"></br>Gemeinden</div>
 			<div></br>Strategische Netze</div>
 			<div class="legend-item">
 				<input type="checkbox" id="strategisches-netz-pt" value="strategisches-netz-pt" onchange="switchlayer(['bus-lines', 'bus-labels', 'zug-lines', 'zug-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'haltestellen-fill', 'haltestellen-outlines', 'layer-Mobilitätsstationen'], 'strategisches-netz-pt')" />
@@ -191,6 +188,7 @@
 	import { addStrategicNetworkPT } from "./addStrategicNetworkPT.js";
 	import { addStrategicNetworkStreets } from "./addStrategicNetworkStreets.js";
 	import { addAccidents } from "./addAccidents.js";
+	import { addMunicipalities } from "./addMunicipalities.js";
 	// import { addNoise } from "./addNoise.js";
 
     const map = new maplibregl.Map({
@@ -246,7 +244,7 @@
 		addStrategicNetworkStreets(map);
 		addAccidents(map);
 		// addNoise(map);
-		addcommunities(); // Adds Communities layer
+		addMunicipalities(map); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
 		addBottlenecks(); // Adds bottlenecks layer to the map.
@@ -276,7 +274,7 @@
 		addStudyArea(map);
 		addAccidents(map);
 		// addNoise(map);
-		addcommunities();
+		addMunicipalities(map);
 		addCounties();
 		addBottlenecks();
 		console.log("style.load called");
@@ -286,48 +284,7 @@
 
 
 
-	async function addcommunities()
-	{
-		map.addSource('gemeinden', {
-            type: 'geojson',
-            // Use a URL for the value for the `data` property.
-            data: 'data/geojson/gemeinden.geojson',
-			generateId: true // This ensures that all features have unique IDs
-        });
-
-		map.addLayer({
-            'id': 'gemeinden-fill',
-            'type': 'fill',
-            'source': 'gemeinden',
-            'layout': {
-				'visibility': 'none',
-			},
-            'paint': {
-                'fill-color': '#00AA00',
-                'fill-opacity': [
-                    'case',
-                    ['boolean', ['feature-state', 'hover'], false],
-                    0.1,
-                    0.0
-                ]
-            }
-        });
-
-        map.addLayer({
-            'id': 'gemeinden-line',
-            'type': 'line',
-            'source': 'gemeinden',
-			'layout': {
-				'visibility': 'none',
-			},
-            'paint': {
-                'line-color': '#00AA00',
-                'line-width': 1.25,
-				'line-dasharray': [3,3]
-            }
-        });
-		console.log("added gemeinden...")
-	}
+	
 
 	async function addCounties()
 	{
@@ -1332,7 +1289,6 @@ function handleMapClicks(){
 		let txt = ''
 		switch(layerId) {
 			case 'landkreise-fill':
-			case 'gemeinden-fill':
 			case 'RadNETZBW-layer':
 			case 'RadNETZKreis-layer':
 			case 'RadNETZKom-layer':
@@ -1498,7 +1454,7 @@ function handleHovering(){
 			currentLayerId = currentFeature.layer.id;
 			for(let i = 0; i<3; i++)
 			{
-				if(!(["gemeinden-fill", "landkreise-fill", "layer-problemstellen-fill"].includes(currentLayerId)))
+				if(!(["landkreise-fill", "layer-problemstellen-fill"].includes(currentLayerId)))
 				{
 					if(features[i+1])
 					{
@@ -1549,18 +1505,6 @@ function handleHovering(){
             }
             hoveredFeatureId = null;
         });
-
-		map.on('mouseleave', 'gemeinden-fill', () => {
-            if (lastHoveredFeatureId) {
-                map.setFeatureState(
-                    {source: lastHoveredFeature.source, id: lastHoveredFeatureId},
-                    {hover: false}
-                );
-            }
-            hoveredFeatureId = null;
-        });
-
-
 }
 
 const checkboxes = document.querySelectorAll('input[type="checkbox"]');
