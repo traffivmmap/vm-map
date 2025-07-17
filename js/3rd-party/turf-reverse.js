@@ -40,3 +40,5 @@ function reverse(feature) {
 
   return featureClone;
 }
+
+module.exports = reverse;
