@@ -196,8 +196,9 @@
         style:'basemap-de-style-a06ceb84.json', // style URL
 		//style: 'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json',
 		maxZoom: 18,
-		preserveDrawingBuffer: true,
-	
+		canvasContextAttributes: {
+			preserveDrawingBuffer: true
+		},	
     });
 	map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-left');
 
