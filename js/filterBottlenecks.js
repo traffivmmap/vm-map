@@ -18,9 +18,13 @@ export function filterBottlenecks(map)
 		}
 		
 		console.log(filter);
-		map.setFilter(['layer-problemstellen-stroke'], filter);
-		map.setFilter(['layer-problemstellen-arrow-stroke'], filter);
-		map.setFilter(['layer-problemstellen-fill'], filter);
-		map.setFilter(['layer-problemstellen-arrow-fill'], filter);
-    
+		if(map.getLayer('layer-problemstellen-stroke'))
+			map.setFilter(['layer-problemstellen-stroke'], filter);
+		if(map.getLayer('layer-problemstellen-arrow-stroke'))
+			map.setFilter(['layer-problemstellen-arrow-stroke'], filter);
+		if(map.getLayer('layer-problemstellen-fill'))
+			map.setFilter(['layer-problemstellen-fill'], filter);
+		if(map.getLayer('layer-problemstellen-arrow-fill'))
+			map.setFilter(['layer-problemstellen-arrow-fill'], filter);
+
 }

@@ -44,16 +44,26 @@ export async function addBottlenecks(map, data_bottlenecks, img_route)
 			// let id = feature.properties.Situation.replaceAll(' ', '') + '-' + i
 			let id = 'Problemstelle-' + i
 
-			let file = await fetch(img_route + image_name)
-			if (file.status === 404) {
-				if (image_name != null) console.log('Image ' + image_name + ' not found.');
+			if(image_name == null || image_name == "")
+			{
+				console.log('No image name provided');
 				clone.querySelector(".image-container").style.paddingBottom = 0;
 				clone.querySelector(".image-container").style.height = 0;
 			}
-			else {
-				clone.querySelector(".sidebar-image").src = img_route + image_name;
-				//clone.querySelector(".banner").alt = feature.properties.image;
+			else
+			{
+				let file = await fetch(img_route + image_name)
+				if (file.status === 404) {
+					console.log('Image ' + image_name + ' not found.');
+					clone.querySelector(".image-container").style.paddingBottom = 0;
+					clone.querySelector(".image-container").style.height = 0;
+				}
+			
+				else {
+					clone.querySelector(".sidebar-image").src = img_route + image_name;
+				}
 			}
+
 
 			clone.querySelector(".headline").textContent = `${feature.properties.pid}: ${feature.properties.headline}`;
 			//clone.querySelector(".cartlink").href = "www.example.com";
