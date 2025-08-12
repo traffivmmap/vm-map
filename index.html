@@ -57,10 +57,6 @@
 		  <div class="legend">
 			<span class="weitere-layer" style="cursor: pointer;">Weitere Layer</span>
 			<div class="collapsible">
-		  <!-- <div class="legend-item">
-				<input type="checkbox" id="verkehrsnachfrage" value="verkehrsnachfrage" onchange="switchlayer(['verkehrsnachfrage'], 'verkehrsnachfrage')" />
-				<label for="verkehrsnachfrage">Verkehrsnachfrage</label>
-			</div> -->
 			<div class="legend-item">
 			  <input type="checkbox" id="traffic" value="traffic" onchange="switchlayer(['traffic'], 'traffic')" />
 			  <label for="traffic">Verkehrslage</label>
@@ -87,14 +83,6 @@
 				<label for="traffic-flow-night">Nachts</label>
 			  </div> -->
 			</div>
-			<!-- <div class="legend-item">
-				<input type="checkbox" id="infrastruktur" value="infrastruktur" onchange="switchlayer(['infrastruktur'], 'infrastruktur')" />
-				<label for="infrastruktur">Infrastruktur</label>
-			</div> -->
-			<!-- <div class="legend-item">
-				<input type="checkbox" id="stationierung" value="stationierung" onchange="switchlayer(['stationierung'], 'stationierung')" />
-				<label for="stationierung">Stationierungen</label>
-			</div> -->
 			<div class="legend-item">
 				<input type="checkbox" id="landkreise" value="landkreise" onchange="switchlayer(['landkreise-fill', 'landkreise-line'], 'landkreise')" />
 				<label for="landkreise">Landkreise</label>
@@ -192,6 +180,8 @@
 	import { addBottlenecks } from "./js/addBottlenecks.js";
 	import { CreateCategoryGroup } from "./js/createCategoryGroup.js";
 	import { filterBottlenecks } from "./js/filterBottlenecks.js";
+	import { addMeasures } from "./js/addMeasures.js";
+	import { scrollSidebarToEntry } from "./js/scrollSidebarToEntry.js";
 	// import { addNoise } from "./addNoise.js";
 
     const map = new maplibregl.Map({
@@ -213,7 +203,7 @@
 	const img_route = 'data/images/'
 	const icon_route = 'data/icons/'
 
-	let cursorOnMarker = false;
+	window.cursorOnMarker = false;
 
 	let bbox =  turf.bbox(data_bottlenecks);
 	map.fitBounds(bbox, { duration: 0, padding: 64 })
@@ -235,7 +225,7 @@
     map.on('load', async () => {
 
 		prepareUI();
-		//await loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
+		// loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
 
 		//loadStrategies();
 		provideStyleImage(map);
@@ -249,6 +239,7 @@
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
 		addBottlenecks(map, data_bottlenecks, img_route); // Adds bottlenecks layer to the map.
+		addMeasures(map, img_route, icon_route); // Adds measures layer to the map.
 		handleMapClicks();
 		handleHovering();
 		handlePointer();
@@ -362,252 +353,6 @@
         );
 	}
 
-	async function loadBottlenecks() {
-		console.log("loading bottlenecks");
-
-		// reverse the line direction, so that the arrowhead symbol is placed at the correct end.
-		// Calculate the rotation of the last line segment so that the arrowhead can be rotated accordingly
-		// add sidebar entry for the bottleneck
-	}
-
-
-	async function loadMeasures() {
-		console.log("loading measures");
-
-		// parse json. Fill map with markers, and sidebar with entries.
-		for (let i = 0; i < data_measures.features.length; i++) {
-			let feature = data_measures.features[i];
-			
-			// Check if Icon exists
-			let icon_name = feature.properties.category;
-			let r = await fetch(icon_route + icon_name + '.svg')
-			if (r.status === 404) {
-				console.log('Icon ' + icon_name + ' not found. Loading default icon for feature ' + i + '.');
-				r = await fetch(icon_route + 'default.svg')
-				icon_name = "default"
-				if (r.status === 404) {
-					console.log("Default icon " + icon_route + 'default.svg not found! Not creating measure ' + i);
-					continue;
-				}
-				
-			}
-
-			// Check if geometry is valid
-			if (!(feature.geometry && feature.geometry.coordinates)) {
-				console.log("Geometry of feature " + i + " was invalid! Not creating feature.");
-				continue;
-			}
-
-			// Check for category
-			let catGroup = document.querySelector("#category-group-template").content.cloneNode(true);
-			if(!document.querySelector(`[data-category="${feature.properties.category}"]`)) {
-				catGroup.querySelector("#category-text").textContent = feature.properties.category;
-				catGroup.querySelector(".category-group").dataset.category = feature.properties.category;
-				
-				let cat = catGroup.querySelector(".category")
-				cat.addEventListener('click',     (event) => { $(`[data-category="${feature.properties.category}"]`).find('.sidebar-entry').slideToggle() });
-				cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = 'rgb(240,248,255)'; });
-				cat.addEventListener('mouseout',  (event) => { cat.style.backgroundColor = ''; }); 
-				
-				cat.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
-					event.stopPropagation();
-					//$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category, event.target.checked])
-					$(".maplibregl-marker").trigger("evaluateVisibility")
-				}); 
-
-				document.querySelector("#measures").append(catGroup);
-
-			}
-
-			// create a DOM element for the marker
-			const el = document.createElement('div');
-			el.classList.add('marker');
-			// el.style.backgroundImage = `url(${encodeURI(icon_route + icon_name + '.svg')})`;
-
-			// el.style.backgroundImage = setSvgAsBackground(icon_route + icon_name + '.svg');
-
-
-    fetch(icon_route + icon_name + '.svg')
-        .then(response => response.text())
-        .then(svgContent => {
-            // Create a temporary DOM element to parse the SVG
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = svgContent;
-            
-            // Get the SVG element from the parsed content
-            const svgElement = tempDiv.querySelector('svg');
-            if (!svgElement) {
-                console.error('No SVG found in the file.');
-                return;
-            }
-            
-            // Get the width and height attributes from the SVG
-            const width = svgElement.getAttribute('width');
-            const height = svgElement.getAttribute('height');
-            
-            // Set the viewBox attribute if both width and height are available
-            if (width && height) {
-                svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
-                // Optionally, remove the width and height attributes to make it responsive
-                svgElement.removeAttribute('width');
-                svgElement.removeAttribute('height');
-            }
-
-			// This can be used to change the fill of the SVG paths, that have the attribute fill: currentColor
-			// svgElement.style.color = '#FF0000'
-
-
-            
-            // Insert the modified SVG content into the target element
-            el.innerHTML = svgElement.outerHTML;
-        })
-        .catch(error => {
-            console.error('Error loading SVG:', error);
-        });
-
-			el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
-			el.dataset.iconcategory = feature.properties.category;
-			el.dataset.strategy = feature.properties.strategy;
-			let markerId = "measure-" + i
-			el.id = markerId;
-
-			$(el).on("evaluateVisibility", function() {
-
-				var iconCategory = $(el).data('iconcategory')
-				var strategyOfMarker = el.dataset.strategy
-				var shouldShow = false;
-
-				if($('#tab-measures :input[type="checkbox"]').prop('checked'))
-				{
-					if($('.category-group[data-category="' + iconCategory + '"]').find('input[type="checkbox"]').is(':checked'))
-						shouldShow = true;
-				}
-				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
-				{
-					if($('.category-group[data-category="' + strategyOfMarker + '"]').find('input[type="checkbox"]').is(':checked'))
-						shouldShow = true;
-				}
-
-				if (shouldShow)
-					$(el).show();
-				else
-					$(el).hide();				
-			})
-
-			el.addEventListener('click', (e) => {
-				e.stopPropagation();
-				console.log("Clicking measure marker");
-				// check which layer is active
-				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
-				{
-					$("#tab-strategies").click();
-					let sidebarEntry = document.getElementById("strategy-measure-entry-"  + i)
-					scrollSidebarToEntry(sidebarEntry);		
-				}
-				if($('#tab-measures :input[type="checkbox"]').prop('checked'))
-				{
-					$("#tab-measures").click();
-					let sidebarEntry = document.getElementById("measure-entry-" + i)
-					scrollSidebarToEntry(sidebarEntry);		
-				}
-			});
-
-			el.addEventListener('mouseover', function(e) {
-				console.log("we hovered over a marker")
-				cursorOnMarker = true;
-				e.stopPropagation();
-				//let sidebarEntry = document.getElementById("measure-entry-" + i)
-				//sidebarEntry.dispatchEvent(new Event('mouseover'));
-
-				//$('#measure-entry-' + i).dispatchEvent(new Event('mouseover'));
-
-				// Use querySelectorAll to find both elements
-				let elements = document.querySelectorAll('#measure-entry-' + i + ', #strategy-measure-entry-' + i);
-
-				// Loop through the NodeList and dispatch the event for each element
-				elements.forEach(function(element) {
-					console.log(element.id)
-					element.dispatchEvent(new Event('mouseover'));
-				});
-			});
-
-			el.addEventListener('mouseout', function() {
-				cursorOnMarker = false;
-				let elements = document.querySelectorAll('#measure-entry-' + i + ', #strategy-measure-entry-' + i);
-
-				// Loop through the NodeList and dispatch the event for each element
-				elements.forEach(function(element) {
-					console.log(element.id)
-					element.dispatchEvent(new Event('mouseout'));
-				});
-			}); 
-
-			// add marker to map
-			new maplibregl.Marker({element: el, anchor: 'bottom'})
-				.setLngLat(feature.geometry.coordinates[0])
-				.addTo(map);
-
-			// add Sidebar entry
-			let clone =  document.querySelector("#template").content.cloneNode(true);
-
-			// Check if image exists
-			let image_name = feature.properties.image;
-			let file = await fetch(img_route + image_name)
-			if (file.status === 404) {
-				if (image_name != null) console.log('Image ' + image_name + ' not found.');
-				clone.querySelector(".image-container").style.paddingBottom = 0;
-				clone.querySelector(".image-container").style.height = 0;
-			}
-			else {
-				clone.querySelector(".sidebar-image").src = img_route + image_name;
-				//clone.querySelector(".banner").alt = feature.properties.image;
-			}
-			clone.querySelector(".headline").textContent = feature.properties.id + ": " + feature.properties.headline;
-			//clone.querySelector(".cartlink").href = "www.example.com";
-			clone.querySelector(".description").textContent = feature.properties.description;
-			clone.querySelector(".sidebar-entry").id = "measure-entry-"  + i;
-
-			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
-				this.style.backgroundColor = 'rgb(240,248,255)';
-				el.style.width = `80px`;
-				el.style.height = `80px`;
-				
-			});
-			clone.querySelector(".sidebar-entry").addEventListener('mouseout', function() {
-				this.style.backgroundColor = '';
-				el.style.width = `64px`;
-				el.style.height = `64px`;
-			}); 
-
-			let bearing = Math.floor(Math.random() * 360);
-			let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
-			let pitch = 10 + Math.floor(Math.random() * 60);
-			clone.querySelector(".sidebar-entry").addEventListener('click', function(event) {
-				//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
-				event.stopPropagation();	
-				let params = {
-					bearing: bearing,
-					center: feature.geometry.coordinates[0],
-					zoom: zoom,
-					pitch: pitch,
-					speed: 0.5,
-				}
-				if($('#measure-' + i).is(':visible'))
-				{					
-					console.log("I fly to point");
-					map.flyTo(params)
-				}
-				else
-				{
-					console.log("I fly do NOT fly to point");
-				}
-			});  
-
-			// add entry to the category-group inside the sidebar and collapse the entry
-			document.querySelector(`[data-category="${feature.properties.category}"]`).appendChild(clone);
-			$(document.getElementById("measure-entry-" + i)).slideUp(0);
-		}
-	};
 
 	async function loadStrategies() {
 		for (let i = 0; i < data_bottlenecks.features.length; i++) {
@@ -834,21 +579,6 @@
 					console.log("Unreachable: " + $(evt.target.closest(".tab")).attr('id'));
 				} 
 		}
-	}
-
-	function scrollSidebarToEntry(sidebarEntry){
-		$('.tab-body').clearQueue()
-		$('.sidebarEntry').clearQueue()
-		// Slide down the entries, then scroll the sidebar to the correct position
-		// keep track wether all entries have completed sliding open, before scrolling the sidebar
-		var sidebarEntries = $(sidebarEntry).parent().children()
-		var entriesCompleted = 0;
-		sidebarEntries.slideDown(400 , () => {
-			entriesCompleted++;					
-			if (entriesCompleted === sidebarEntries.length) {
-				$('.tab-body').animate({scrollTop: sidebarEntry.offsetTop + sidebarEntry.offsetParent.offsetTop - 64 - $('.sidebar').offset().top }, 1500);
-			}
-		});
 	}
 
 	function loadImage(url) {
@@ -1152,7 +882,7 @@ function handleHovering(){
 							{source: lastHoveredFeature.source, id: lastHoveredFeatureId},
 							{hover: false}
 						);
-			if(!cursorOnMarker)
+			if(!window.cursorOnMarker)
 			map.setFeatureState(
 							{source: currentFeature.source, id: currentFeatureId},
 							{hover: true}

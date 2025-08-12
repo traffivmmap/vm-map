@@ -101,6 +101,9 @@ html {
 }
 
 .description {
+	line-height: 1.25;
+	white-space: pre-wrap;
+	text-align: justify;
 	padding: 5px;
 }
 
