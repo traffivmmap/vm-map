@@ -196,7 +196,7 @@
 	map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-left');
 
 	
-	const data_measures = await (await fetch('data/geojson/data.geojson')).json();
+	const data_measures = await (await fetch('data/geojson/massnahmen.geojson')).json();
 	const data_streets = await (await fetch('data/geojson/strategic-networks/iv/BLK.geojson')).json();
 	const data_bottlenecks = await (await fetch('data/geojson/problemstellen.geojson')).json();
 
