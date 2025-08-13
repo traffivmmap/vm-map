@@ -5,7 +5,7 @@ import { filterBottlenecks } from "./filterBottlenecks.js";
 
 let sidebarEntriesAdded = false;
 
-export async function addBottlenecks(map, data_bottlenecks, img_route)
+export function addBottlenecks(map, data_bottlenecks, img_route)
 {   
     if(!sidebarEntriesAdded)
     {
@@ -52,7 +52,7 @@ export async function addBottlenecks(map, data_bottlenecks, img_route)
 			}
 			else
 			{
-				let file = await fetch(img_route + image_name)
+				let file = fetch(img_route + image_name)
 				if (file.status === 404) {
 					console.log('Image ' + image_name + ' not found.');
 					clone.querySelector(".image-container").style.paddingBottom = 0;
@@ -82,8 +82,8 @@ export async function addBottlenecks(map, data_bottlenecks, img_route)
 				// make hover false
 			}); 
 
-			let bearing = Math.floor(Math.random() * 360);
-			let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
+			let bearing = 0;Math.floor(Math.random() * 360);
+			let zoom = 13.75 + Math.floor(Math.random() * 2); // 15.99 is the max zoom for the satellite map
 			let pitch = 10 + Math.floor(Math.random() * 60);
 			clone.querySelector(".sidebar-entry").addEventListener('click', function(event) {
 				//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
@@ -154,7 +154,7 @@ export async function addBottlenecks(map, data_bottlenecks, img_route)
         	}
           	problemstelleID = null;          	
         });
-        $("#tab-bottlenecks > #visibility-checkbox").click();
+        // $("#tab-bottlenecks > #visibility-checkbox").click();
         sidebarEntriesAdded = true;
         console.log("Added sidebar entries for Bottlenecks.")
     }

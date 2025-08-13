@@ -56,7 +56,7 @@ html {
 	padding: 15px;
 	margin: 8px;
 	margin-bottom: 16px;
-	border-radius: 8px;
+	border-radius: var(--var-border-radius);
 	-webkit-hyphens: auto;
 	-moz-hyphens: auto;
 	-ms-hyphens: auto;

@@ -1,8 +1,8 @@
 import { scrollSidebarToEntry } from "./scrollSidebarToEntry.js";
 
-let data_measures = await (await fetch('data/geojson/massnahmen.geojson')).json();
 
-export async function addMeasures(map, img_route, icon_route)
+
+export async function addMeasures(map, data_measures, img_route, icon_route)
 {   
     console.log("loading massnahmen");
 
@@ -12,10 +12,10 @@ export async function addMeasures(map, img_route, icon_route)
 			
 			// Check if Icon exists
 			let icon_name = feature.properties.category;
-			let r = await fetch(icon_route + icon_name + '.svg')
+			let r = fetch(icon_route + icon_name + '.svg')
 			if (r.status === 404) {
 				console.log('Icon ' + icon_name + ' not found. Loading default icon for feature ' + i + '.');
-				r = await fetch(icon_route + 'default.svg')
+				r = fetch(icon_route + 'default.svg')
 				icon_name = "default"
 				if (r.status === 404) {
 					console.log("Default icon " + icon_route + 'default.svg not found! Not creating measure ' + i);
@@ -193,7 +193,6 @@ export async function addMeasures(map, img_route, icon_route)
 			}
 			else {
 				clone.querySelector(".sidebar-image").src = img_route + image_name;
-				//clone.querySelector(".banner").alt = feature.properties.image;
 			}
 			clone.querySelector(".headline").textContent = feature.properties.id + ": " + feature.properties.headline;
 			//clone.querySelector(".cartlink").href = "www.example.com";

@@ -125,13 +125,13 @@
 	  </div>
 	  <div id="sidebar" class="sidebar">
 		  <div class="tab-container">
-			  <div class="tab active" id="tab-bottlenecks">Problemstellen
+			  <div class="tab" id="tab-bottlenecks">Problemstellen
 				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" autocomplete="off">
 			  </div>
 			  <div class="tab" id="tab-measures"style="border-left: none">Ma&szlig;nahmen
 				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" autocomplete="off">
 			  </div>
-			  <div class="tab" id="tab-strategies"style="border-left: none">Strategien
+			  <div class="tab active" id="tab-strategies"style="border-left: none">Strategien
 				<input type="checkbox" id="visibility-checkbox" style="margin-left: auto;" autocomplete="off">
 			  </div>
 		  </div> 
@@ -178,10 +178,10 @@
 	import { addAccidents } from "./addAccidents.js";
 	import { addMunicipalities } from "./addMunicipalities.js";
 	import { addBottlenecks } from "./js/addBottlenecks.js";
-	import { CreateCategoryGroup } from "./js/createCategoryGroup.js";
 	import { filterBottlenecks } from "./js/filterBottlenecks.js";
 	import { addMeasures } from "./js/addMeasures.js";
 	import { scrollSidebarToEntry } from "./js/scrollSidebarToEntry.js";
+	import { addStrategies } from "./js/addStrategies.js";
 	// import { addNoise } from "./addNoise.js";
 
     const map = new maplibregl.Map({
@@ -196,9 +196,9 @@
 	map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-left');
 
 	
-	const data_measures = await (await fetch('data/geojson/massnahmen.geojson')).json();
-	const data_streets = await (await fetch('data/geojson/strategic-networks/iv/BLK.geojson')).json();
 	const data_bottlenecks = await (await fetch('data/geojson/problemstellen.geojson')).json();
+	let data_measures = await (await fetch('data/geojson/massnahmen.geojson')).json();
+	const data_streets = await (await fetch('data/geojson/strategic-networks/iv/BLK.geojson')).json();
 
 	const img_route = 'data/images/'
 	const icon_route = 'data/icons/'
@@ -226,8 +226,6 @@
 
 		prepareUI();
 		// loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
-
-		//loadStrategies();
 		provideStyleImage(map);
 		addStrategicNetworkPT(map);
 		addStrategicNetworkBike(map);
@@ -238,8 +236,9 @@
 		addMunicipalities(map); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
-		addBottlenecks(map, data_bottlenecks, img_route); // Adds bottlenecks layer to the map.
-		addMeasures(map, img_route, icon_route); // Adds measures layer to the map.
+		await addBottlenecks(map, data_bottlenecks, img_route); // Adds bottlenecks layer to the map.
+		await addMeasures(map, data_measures, img_route, icon_route); // Adds measures layer to the map.
+		await addStrategies(map, data_bottlenecks, data_measures); // Adds strategies to the sidebar. Doesn't touch the map
 		handleMapClicks();
 		handleHovering();
 		handlePointer();
@@ -354,123 +353,13 @@
 	}
 
 
-	async function loadStrategies() {
-		for (let i = 0; i < data_bottlenecks.features.length; i++) {
-			let feature = data_bottlenecks.features[i];
-			if(!feature.geometry.coordinates[0]) {
-				console.log("Feature " + i + " had an invalid geometry. Not adding strategy-sidebar-entry.");
-				continue;
-			}
-			let strategy = feature.properties.strategy;
-
-			let strat = CreateCategoryGroup(strategy)
-			if(strat)
-			{		
-				strat.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
-				event.stopPropagation();
-				filterBottlenecks(map);
-				}); 
-				strat.querySelector("#visibility-checkbox").checked = false;
-				// if (i == 0)
-				//	strat.querySelector("#visibility-checkbox").checked = true;
-			}
-
-			strat.querySelector(".category-group").id = "strategy-entry-" + i
-			strat.querySelector("#category-text").textContent = "Strategie " + (i+1) ;
-			document.querySelector("#strategies").append(strat);
-
-			let entryCloneID = "Problemstelle-" + i;
-			console.log("Copying DOM Elelent #" + entryCloneID)
-			let clone = document.getElementById(entryCloneID).cloneNode(true)
-			clone.id = "strategy-bottleneck-entry-"  + i
-
-			console.log("appending " + clone + " to element strategy-entry-" + i)
-			document.getElementById("strategy-entry-" + i).append(clone);
-
-			document.getElementById("strategy-bottleneck-entry-"  + i).addEventListener('mouseover', function() {
-				this.style.backgroundColor = 'rgb(240,248,255)';
-				map.setFeatureState({source: 'source-problemstellen', id: i}, {hover: true});
-				// make hover true
-				
-			});
-			document.getElementById("strategy-bottleneck-entry-"  + i).addEventListener('mouseout', function() {
-				this.style.backgroundColor = '';
-				map.setFeatureState({source: 'source-problemstellen', id: i}, {hover: false});
-				// make hover false
-			}); 
-
-			for (let m = 0; m < data_measures.features.length; m++) {
-
-				if(data_measures.features[m].properties.strategy)
-				if(data_measures.features[m].properties.strategy == i+1)
-				{
-					let entryCloneID = "measure-entry-"  + m;
-					console.log("strategy " + i + " contains measure " + m);
-					console.log("Copying DOM Elelent #" + entryCloneID)
-					let clone = document.getElementById(entryCloneID).cloneNode(true)
-					clone.id = "strategy-measure-entry-"  + m
-
-					console.log(clone);
-					console.log("appending " + clone + " to element strategy-entry-" + i)
-					document.getElementById("strategy-entry-" + i).append(clone);
-					$(document.getElementById("strategy-measure-entry-"  + m)).slideUp(0);
-					document.getElementById("strategy-measure-entry-"  + m).addEventListener('mouseover', function() {
-						this.style.backgroundColor = 'rgb(240,248,255)';
-						let marker = document.querySelector("#measure-" + m)
-						marker.style.width = `80px`;
-						marker.style.height = `80px`;			
-					});
-					document.getElementById("strategy-measure-entry-"  + m).addEventListener('mouseout', function() {
-						this.style.backgroundColor = '';
-						let marker = document.querySelector("#measure-" + m)
-						marker.style.width = `64px`;
-						marker.style.height = `64px`;				
-					});
-
-					let bearing = Math.floor(Math.random() * 360);
-					let zoom = 13.75 + Math.floor(Math.random() * 2); // 15.99 is the max zoom for the satellite map
-					let pitch = 10 + Math.floor(Math.random() * 60);
-					document.getElementById("strategy-measure-entry-"  + m).addEventListener('click', function() {
-						let marker = document.querySelector("#measure-" + m)
-						//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
-						event.stopPropagation();	
-						let params = {
-							bearing: bearing,
-							center: data_measures.features[m].geometry.coordinates[0],
-							zoom: zoom,
-							pitch: pitch,
-							speed: 0.5,
-						}
-						if($('#measure-' + m).is(':visible'))
-						{	
-							
-							
-							console.log("I fly to point");
-							map.flyTo(params)
-						}
-						else
-						{
-							console.log("I fly do NOT fly to point");
-						}
-			
-					});
-
-					// add hiding of the marker if the category-group is clicked:
-					document.getElementById("strategy-entry-" + i).querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
-					event.stopPropagation();
-					$(".maplibregl-marker").trigger("evaluateVisibility")
-				}); 
-
-				}	
-			}
-		}
-	}
+	
 
 	function prepareUI(){
 		console.log("preparing UI");
 		$(".tab").click(openTab); // adds the Tab clicking functionality
-		//$("#bottlenecks").toggle(); // hides the bottlenecks div in the sidebar.
-		$("#strategies").toggle(); // hides the strategies div in the sidebar.
+		$("#bottlenecks").toggle(); // hides the bottlenecks div in the sidebar.
+		// $("#strategies").toggle(); // hides the strategies div in the sidebar.
 		$("#measures").toggle(); // hides the measures div in the sidebar.
 
 		$("#tab-bottlenecks > #visibility-checkbox").on('click',  (event) => {		

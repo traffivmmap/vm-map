@@ -9,15 +9,14 @@ export function filterBottlenecks(map)
 		else
 		if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
 		{
-			let key = $("#strategies").find("input[type='checkbox']:checked").closest(".category-group").map(function() {return $(this).data("category");}).get();
-			filter = ["any", ...key.map(id => ["==", id, ["get", "id"]])];
+			let key = $("#strategies").find("input[type='checkbox']:checked").closest(".category-group").map(function() {return $(this).attr("data-category");}).get();
+			filter = ["any", ...key.map(strategy => ["==", strategy, ["get", "strategy"]])];
 		}
 		else
 		{
 			filter = ["any", ["==", "NONE", ["get", "Situation"]]]
 		}
 		
-		console.log(filter);
 		if(map.getLayer('layer-problemstellen-stroke'))
 			map.setFilter(['layer-problemstellen-stroke'], filter);
 		if(map.getLayer('layer-problemstellen-arrow-stroke'))
