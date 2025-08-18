@@ -95,14 +95,18 @@ export function addStrategies(map, data_bottlenecks, data_measures) {
 					document.getElementById("strategy-measure-entry-"  + m).addEventListener('mouseover', function() {
 						this.style.backgroundColor = 'rgb(240,248,255)';
 						let marker = document.querySelector("#measure-" + m)
-						marker.style.width = `80px`;
-						marker.style.height = `80px`;			
+						marker.style.width = `54px`;
+						marker.style.height = `80px`;	
+						marker.style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3)) brightness(140%)';
+						marker.style.zIndex = Math.floor((90-data_measures.features[m].geometry.coordinates[0][1])*2000)		
 					});
 					document.getElementById("strategy-measure-entry-"  + m).addEventListener('mouseout', function() {
 						this.style.backgroundColor = '';
 						let marker = document.querySelector("#measure-" + m)
-						marker.style.width = `64px`;
-						marker.style.height = `64px`;				
+						marker.style.width = `40px`;
+						marker.style.height = `64px`;
+						marker.style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3))';
+						marker.style.zIndex = Math.floor((90-data_measures.features[m].geometry.coordinates[0][1])*1000)			
 					});
 
 					let bearing = 0; // Math.floor(Math.random() * 360);

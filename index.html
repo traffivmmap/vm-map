@@ -184,15 +184,56 @@
 	import { addStrategies } from "./js/addStrategies.js";
 	// import { addNoise } from "./addNoise.js";
 
-    const map = new maplibregl.Map({
-        container: 'map',
-        style:'basemap-de-style-a06ceb84.json', // style URL
-		//style: 'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json',
-		maxZoom: 18,
-		canvasContextAttributes: {
-			preserveDrawingBuffer: true
-		},	
-    });
+	const locations = {
+	"default":    "lat=49.20020&lng=9.17364&zoom=9.67&pitch=0&bearing=0",
+	"Strategie1": "lat=49.17720&lng=9.3455&zoom=11.57&pitch=23&bearing=89",
+	"Strategie2": "lat=49.21966&lng=9.26299&zoom=11.81",
+	"Strategie3": "lat=49.11987&lng=9.15894&zoom=13.05",
+	"Strategie4": "lat=49.18621&lng=9.20577&zoom=12.19"
+	};
+
+	// Start with default
+	const baseParams = new URLSearchParams(locations.default);
+
+	// Overwrite with Strategie if specified
+	const urlParams = new URLSearchParams(window.location.search);
+	const locKey = urlParams.get('location');
+	if (locKey && locations[locKey]) {
+	const stratParams = new URLSearchParams(locations[locKey]);
+	for (const [key, value] of stratParams) {
+		baseParams.set(key, value);
+	}
+	}
+
+	// Overwrite with any explicit URL parameters
+	for (const [key, value] of urlParams) {
+		if (key !== 'location') {
+			const num = parseFloat(value);
+			// Only overwrite if it's a valid number
+			if (!isNaN(num)) {
+			baseParams.set(key, value);
+			}
+		}
+	}
+
+	// Parse final parameters
+	const lat     = parseFloat(baseParams.get('lat'));
+	const lng     = parseFloat(baseParams.get('lng'));
+	const zoom    = parseFloat(baseParams.get('zoom'));
+	const pitch   = parseFloat(baseParams.get('pitch'));
+	const bearing = parseFloat(baseParams.get('bearing'));
+
+	// Initialize map
+	const map = new maplibregl.Map({
+	container: 'map',
+	style: 'basemap-de-style-a06ceb84.json',
+	center: [lng, lat],
+	zoom: zoom,
+	bearing: bearing,
+	pitch: pitch,
+	maxZoom: 18,
+	canvasContextAttributes: { preserveDrawingBuffer: true }
+	});
 	map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-left');
 
 	
@@ -205,12 +246,6 @@
 
 	window.cursorOnMarker = false;
 
-	let bbox =  turf.bbox(data_bottlenecks);
-	map.fitBounds(bbox, { duration: 0, padding: 64 })
-	// map.fitBounds([
-	// 		[8.82088, 49.37708],
-	// 		[9.52641, 49.02268]
-    //     ], { duration: 1, padding: 64 });
 	document.getElementById('button-fit').addEventListener('click', () => {
 		// map.fitBounds(bbox, { duration: 1000, pitch: 0, padding: 64, });
 		map.fitBounds([
@@ -218,9 +253,6 @@
 			[9.52641, 49.02268]
         ], { duration: 1000, padding: 32 , pitch: 0});
 	});
-
-
-
 
     map.on('load', async () => {
 
@@ -267,6 +299,19 @@
 		addBottlenecks(map, data_bottlenecks, img_route);
 		console.log("style.load called");
 
+	});
+
+	map.on('moveend', () => {
+		const center = map.getCenter();
+		const zoom = map.getZoom();
+		const params = new URLSearchParams({
+			lat: center.lat.toFixed(5),
+			lng: center.lng.toFixed(5),
+			zoom: map.getZoom().toFixed(2),
+			// bearing: map.getBearing().toFixed(1),
+			// pitch: map.getPitch().toFixed(1)
+		});
+		history.replaceState({}, '', `${location.pathname}?${params}`);
 	});
 
 	async function addCounties()

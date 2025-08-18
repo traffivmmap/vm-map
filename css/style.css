@@ -77,7 +77,10 @@ html {
 }
 
 .marker {
-	width: 64px;
+	display: flex;
+	justify-content: center;
+	overflow: visible;
+	width: 40px;
 	height: 64px;
 	background-size: contain;
 	filter: drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3));
@@ -85,8 +88,10 @@ html {
 }
 
 .marker svg {
-    width: 100%;
+	flex-shrink: 0; 
     height: 100%;
+	overflow: visible;         /* still allow shapes to draw outside */
+    pointer-events: none;  
 }
 
 .sidebar-image {

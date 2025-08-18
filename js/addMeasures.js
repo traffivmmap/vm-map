@@ -74,19 +74,20 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
             }
             
             // Get the width and height attributes from the SVG
-            const width = svgElement.getAttribute('width');
-            const height = svgElement.getAttribute('height');
-            
+            const width = parseFloat(svgElement.getAttribute('width'))
+            const height = parseFloat(svgElement.getAttribute('height'));
+
             // Set the viewBox attribute if both width and height are available
             if (width && height) {
                 svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
                 // Optionally, remove the width and height attributes to make it responsive
                 svgElement.removeAttribute('width');
                 svgElement.removeAttribute('height');
+				// svgElement.removeAttribute('stroke');
             }
 
 			// This can be used to change the fill of the SVG paths, that have the attribute fill: currentColor
-			// svgElement.style.color = '#FF0000'
+			// svgElement.style.color = '#222222';
 
 
             
@@ -201,14 +202,21 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 
 			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
 				this.style.backgroundColor = 'rgb(240,248,255)';
-				el.style.width = `80px`;
-				el.style.height = `80px`;
+				el.style.width = `54px`;
+				el.style.height = `80px`;		
+				el.style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3)) brightness(140%)';
+				el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*2000)
+
+				
 				
 			});
 			clone.querySelector(".sidebar-entry").addEventListener('mouseout', function() {
 				this.style.backgroundColor = '';
-				el.style.width = `64px`;
-				el.style.height = `64px`;
+				
+				el.style.width = `40px`;
+				el.style.height = `64px`;	
+				el.style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3))';
+				el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
 			}); 
 
 			let bearing = Math.floor(Math.random() * 360);
