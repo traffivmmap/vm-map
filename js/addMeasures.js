@@ -1,4 +1,6 @@
 import { scrollSidebarToEntry } from "./scrollSidebarToEntry.js";
+import { createOutlinedSVGText } from "./createOutlinedSVGText.js";
+import { addLegendSymbol } from "./addLegendSymbol.js";
 
 
 
@@ -38,7 +40,7 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 				
 				let cat = catGroup.querySelector(".category")
 				cat.addEventListener('click',     (event) => { $(`[data-category="${feature.properties.category}"]`).find('.sidebar-entry').slideToggle() });
-				cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = 'rgb(240,248,255)'; });
+				cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = '#fffeacff'; });
 				cat.addEventListener('mouseout',  (event) => { cat.style.backgroundColor = ''; }); 
 				
 				cat.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
@@ -49,11 +51,31 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 
 				document.querySelector("#measures").append(catGroup);
 
+				// Add symbol to the legend
+				let legendSymbolMeasure = {
+					text : feature.properties.category,
+					symbolType: "image",
+					imgSrc: icon_route + icon_name + '.svg',
+					imageSize: 32,
+					directInsert: true,
+				}
+				addLegendSymbol('#legend-measures', legendSymbolMeasure);
 			}
 
 			// create a DOM element for the marker
-			const el = document.createElement('div');
-			el.classList.add('marker');
+			const m = document.createElement('div');
+			m.classList.add('marker');
+			const wrapper = document.createElement('div');
+
+			wrapper.classList.add('marker-wrapper');
+			// wrapper.style.position = 'relative';
+			wrapper.style.pointerEvents = 'none';
+
+			m.appendChild(wrapper);
+
+			
+			
+			
 			// el.style.backgroundImage = `url(${encodeURI(icon_route + icon_name + '.svg')})`;
 
 			// el.style.backgroundImage = setSvgAsBackground(icon_route + icon_name + '.svg');
@@ -89,25 +111,47 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 			// This can be used to change the fill of the SVG paths, that have the attribute fill: currentColor
 			// svgElement.style.color = '#222222';
 
+			svgElement.classList.add('marker_svg');
 
-            
             // Insert the modified SVG content into the target element
-            el.innerHTML = svgElement.outerHTML;
+            wrapper.appendChild(svgElement);
+
+			// Add a label
+			let txt = createOutlinedSVGText({
+					text: feature.properties.label,
+					strokeWidth: 2,
+					strokeColor: '#ffffff',
+					fill: '#2a2623',
+					fontSize: 11,
+					x: 0,
+					y: 0
+				})
+			// txt.style.position = 'absolute';
+			txt.style.left = '100%';
+			txt.style.width = 'auto';
+			//txt.style.background = 'white'
+			txt.classList.add('marker_text_svg');
+
+			let txtContainer = wrapper.appendChild(document.createElement('div'));
+			txtContainer.style.position = 'absolute';
+			txtContainer.style.left = '105%';
+			txtContainer.style.top = '-5px';
+			txtContainer.appendChild(txt);
         })
         .catch(error => {
             console.error('Error loading SVG:', error);
         });
 
-			el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
-			el.dataset.iconcategory = feature.properties.category;
-			el.dataset.strategy = feature.properties.strategy;
+			m.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
+			m.dataset.iconcategory = feature.properties.category;
+			m.dataset.strategy = feature.properties.strategy;
 			let markerId = "measure-" + i
-			el.id = markerId;
+			m.id = markerId;
 
-			$(el).on("evaluateVisibility", function() {
+			$(m).on("evaluateVisibility", function() {
 
-				var iconCategory = $(el).data('iconcategory')
-				var strategyOfMarker = el.dataset.strategy
+				var iconCategory = $(m).data('iconcategory')
+				var strategyOfMarker = m.dataset.strategy
 				var shouldShow = false;
 
 				if($('#tab-measures :input[type="checkbox"]').prop('checked'))
@@ -122,12 +166,12 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 				}
 
 				if (shouldShow)
-					$(el).show();
+					$(m).show();
 				else
-					$(el).hide();				
+					$(m).hide();				
 			})
 
-			el.addEventListener('click', (e) => {
+			m.addEventListener('click', (e) => {
 				e.stopPropagation();
 				console.log("Clicking measure marker");
 				// check which layer is active
@@ -145,39 +189,44 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 				}
 			});
 
-			el.addEventListener('mouseover', function(e) {
+			m.addEventListener('mouseover', function(e) {
 				console.log("we hovered over a marker")
 				window.cursorOnMarker = true;
 				e.stopPropagation();
-				//let sidebarEntry = document.getElementById("measure-entry-" + i)
-				//sidebarEntry.dispatchEvent(new Event('mouseover'));
 
-				//$('#measure-entry-' + i).dispatchEvent(new Event('mouseover'));
+				m.style.width = `54px`;
+				m.style.height = `80px`;		
+				m.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*2000)
+				m.querySelector(".marker_svg").style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3)) brightness(140%)';
 
 				// Use querySelectorAll to find both elements
 				let elements = document.querySelectorAll('#measure-entry-' + i + ', #strategy-measure-entry-' + i);
-
 				// Loop through the NodeList and dispatch the event for each element
 				elements.forEach(function(element) {
 					console.log(element.id)
-					element.dispatchEvent(new Event('mouseover'));
+					element.style.backgroundColor = '#fffeacff';
 				});
 			});
 
-			el.addEventListener('mouseout', function() {
+			m.addEventListener('mouseout', function() {
 				window.cursorOnMarker = false;
-				let elements = document.querySelectorAll('#measure-entry-' + i + ', #strategy-measure-entry-' + i);
 
+				m.style.width = `40px`;
+				m.style.height = `64px`;
+				m.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
+				m.querySelector(".marker_svg").style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3))';
+
+				let elements = document.querySelectorAll('#measure-entry-' + i + ', #strategy-measure-entry-' + i);
 				// Loop through the NodeList and dispatch the event for each element
 				elements.forEach(function(element) {
 					console.log(element.id)
-					element.dispatchEvent(new Event('mouseout'));
+					element.style.backgroundColor = '';
 				});
 			}); 
 
 			// add marker to map
-			$(el).hide();
-			new maplibregl.Marker({element: el, anchor: 'bottom'})
+			$(m).hide();
+			new maplibregl.Marker({element: m, anchor: 'bottom'})
 				.setLngLat(feature.geometry.coordinates[0])
 				.addTo(map);
 
@@ -201,25 +250,14 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 			clone.querySelector(".sidebar-entry").id = "measure-entry-"  + i;
 
 			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
-				this.style.backgroundColor = 'rgb(240,248,255)';
-				el.style.width = `54px`;
-				el.style.height = `80px`;		
-				el.style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3)) brightness(140%)';
-				el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*2000)
-
-				
-				
+				// forward event to marker
+				m.dispatchEvent(new Event('mouseover'));
 			});
 			clone.querySelector(".sidebar-entry").addEventListener('mouseout', function() {
-				this.style.backgroundColor = '';
-				
-				el.style.width = `40px`;
-				el.style.height = `64px`;	
-				el.style.filter = 'drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3))';
-				el.style.zIndex = Math.floor((90-feature.geometry.coordinates[0][1])*1000)
+				m.dispatchEvent(new Event('mouseout'));
 			}); 
 
-			let bearing = Math.floor(Math.random() * 360);
+			let bearing = 0; //Math.floor(Math.random() * 360);
 			let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
 			let pitch = 10 + Math.floor(Math.random() * 60);
 			clone.querySelector(".sidebar-entry").addEventListener('click', function(event) {

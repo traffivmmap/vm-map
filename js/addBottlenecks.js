@@ -71,7 +71,7 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 			clone.querySelector(".sidebar-entry").id = id;
 
 			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
-				this.style.backgroundColor = 'rgb(240,248,255)';
+				this.style.backgroundColor = '#fffeacff';
 				map.setFeatureState({source: 'source-problemstellen', id: i}, {hover: true});
 				// make hover true
 				

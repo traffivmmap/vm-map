@@ -1,3 +1,5 @@
+import { addLegendSymbol } from "./js/addLegendSymbol.js";
+
 let legendSymbolsAdded = false;
 
 export async function addStrategicNetworkBike(map)

@@ -83,15 +83,21 @@ html {
 	width: 40px;
 	height: 64px;
 	background-size: contain;
-	filter: drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3));
 	cursor: pointer;
 }
 
-.marker svg {
+.marker_text_svg {
+	flex-shrink: 0; 
+    height: 100%;
+    pointer-events: none;  
+}
+
+.marker_svg {
 	flex-shrink: 0; 
     height: 100%;
 	overflow: visible;         /* still allow shapes to draw outside */
     pointer-events: none;  
+	filter: drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3));
 }
 
 .sidebar-image {
@@ -243,7 +249,8 @@ html {
 .collapsible {
 	max-height: 0;
 	transition: max-height 0.2s ease-out;
-	overflow: scroll;
+	overflow-y: scroll;
+	resize: vertical;
 }
 
 a:link,

@@ -1,4 +1,4 @@
-function addLegendSymbol(
+export function addLegendSymbol(
     targetElementID,
     {
         text,
@@ -58,6 +58,7 @@ function addLegendSymbol(
 
     const labelText = document.createElement("span");
     labelText.textContent = text;
+    labelText.style.maxWidth = "180px";
 
     legendItem.appendChild(symbol);
     legendItem.appendChild(labelText);

@@ -10,12 +10,11 @@
 
 <script src="provideStyleImage.js"></script>
 <script src="addStudyArea.js"></script>
-<script src="addLegendSymbol.js"></script>
 
 <!-- 3rd party scripts -->
-<!-- Printing an export functionality -->
-<script src="js/3rd-party/html2canvas.min.js"></script>
-<script src="js/3rd-party/canvas-toBlob.js"></script>
+<!-- Printing and export functionality -->
+<script src="js/3rd-party/html2canvas.min.js"></script> 
+<script src="js/3rd-party/html-to-image.js"></script>
 <script src="js/3rd-party/jspdf.umd.min.js"></script>
 <script src="js/3rd-party/FileSaver.min.js"></script>
 
@@ -55,7 +54,7 @@
 		  </div>
 
 		  <div class="legend">
-			<span class="weitere-layer" style="cursor: pointer;">Weitere Layer</span>
+			<span class="weitere-layer" style="cursor: pointer;">Legende und weitere Layer</span>
 			<div class="collapsible">
 			<div class="legend-item">
 			  <input type="checkbox" id="traffic" value="traffic" onchange="switchlayer(['traffic'], 'traffic')" />
@@ -117,6 +116,7 @@
 				<input type="checkbox" id="noise" value="noise" onchange="switchlayer(['noise-layer'], 'noise')" />
 				<label for="noise">Lärm</label>
 			</div>
+			<div id="legend-measures"></br>Maßnahmen</div>
 
 		</div>
 	</div>
@@ -878,7 +878,9 @@ function Print(format) {
             });;
 		});
 
-        } else if (format == 'pdf') {
+
+
+    } else if (format == 'pdf') {
 
 			html2canvas(document.getElementById('map'), {
                 ignoreElements: function (element) {
@@ -907,6 +909,7 @@ function Print(format) {
             });
 
         }
+	
 }
 
 function handlePointer()

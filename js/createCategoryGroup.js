@@ -7,7 +7,7 @@ export function CreateCategoryGroup(keyAttribute)
         
         let cat = catGroup.querySelector(".category")
         cat.addEventListener('click',     (event) => { $(`[data-category="${keyAttribute}"]`).find('.sidebar-entry').slideToggle() });
-        cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = 'rgb(240,248,255)'; });
+        cat.addEventListener('mouseover', (event) => { cat.style.backgroundColor = '#fffeacff'; });
         cat.addEventListener('mouseout',  (event) => { cat.style.backgroundColor = ''; });
         console.log("Created a category Group")
         return catGroup;
