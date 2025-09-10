@@ -262,7 +262,13 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 			let pitch = 10 + Math.floor(Math.random() * 60);
 			clone.querySelector(".sidebar-entry").addEventListener('click', function(event) {
 				//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
-				event.stopPropagation();	
+				event.stopPropagation();
+				
+				// If there's selected text, do nothing
+				if (window.getSelection().toString().length > 0) {
+					return;
+				}
+
 				let params = {
 					bearing: bearing,
 					center: feature.geometry.coordinates[0],

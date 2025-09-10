@@ -57,7 +57,13 @@ export function addStrategies(map, data_bottlenecks, data_measures) {
 			let pitch = 10 + Math.floor(Math.random() * 35);
 			document.getElementById("strategy-bottleneck-entry-"  + i).addEventListener('click', function() {
 				//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
-				event.stopPropagation();	
+				event.stopPropagation();
+
+				// If there's selected text, do nothing
+				if (window.getSelection().toString().length > 0) {
+					return;
+				}
+
 				let params = {
 					bearing: bearing,
 					center: data_bottlenecks.features[i].geometry.coordinates[0],
@@ -109,7 +115,13 @@ export function addStrategies(map, data_bottlenecks, data_measures) {
 					document.getElementById("strategy-measure-entry-"  + m).addEventListener('click', function() {
 						let marker = document.querySelector("#measure-" + m)
 						//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
-						event.stopPropagation();	
+						event.stopPropagation();
+
+						// If there's selected text, do nothing
+						if (window.getSelection().toString().length > 0) {
+							return;
+						}
+
 						let params = {
 							bearing: bearing,
 							center: data_measures.features[m].geometry.coordinates[0],
