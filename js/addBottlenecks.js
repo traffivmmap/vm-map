@@ -1,14 +1,27 @@
 import { CreateCategoryGroup } from "./createCategoryGroup.js";
 import { filterBottlenecks } from "./filterBottlenecks.js";
+import { addLegendSymbol } from "./addLegendSymbol.js";
 
 
 
-let sidebarEntriesAdded = false;
+let firstLoad = true;
 
 export function addBottlenecks(map, data_bottlenecks, img_route)
 {   
-    if(!sidebarEntriesAdded)
+    if(firstLoad)
     {
+		// Sort Bottlenecks by pid
+		data_bottlenecks.features.sort((a, b) => {
+		const getNum = pid => {
+			const match = String(pid).match(/\d+/);
+			return match ? Number(match[0]) : 0; // default to 0 if no number
+		};
+
+		const numA = getNum(a.properties.pid);
+		const numB = getNum(b.properties.pid);
+
+		return numA - numB;
+		});
         // Add sidebar entries for Bottlenecks
         for (let i = 0; i < data_bottlenecks.features.length; i++) {
 			let feature = data_bottlenecks.features[i];
@@ -29,7 +42,7 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 					filterBottlenecks(map);
 					//$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category])
 				}); 
-				document.querySelector("#bottlenecks").prepend(catGroup);
+				document.querySelector("#bottlenecks").append(catGroup);
 			}
 			
 			
@@ -155,8 +168,39 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
           	problemstelleID = null;          	
         });
         // $("#tab-bottlenecks > #visibility-checkbox").click();
-        sidebarEntriesAdded = true;
+        
+		// some extra logic: put "Zurückgestellte Problemstellen" at the end of the list
+		let container = document.getElementById("bottlenecks");
+		let postponed = container.querySelector('[data-category="Zurückgestellte Problemstellen"]');
+		if (postponed) {
+			container.appendChild(postponed);
+		}
+
         console.log("Added sidebar entries for Bottlenecks.")
+		
+		const legendItems = {
+			"Beeinträchtigung des ÖPNV": "steelblue",
+			"Beeinträchtigung des Radverkehrs": "#d1f700",
+			"Unfall": "#ff0000",
+			"Stau": "#b22222",
+			"Morgenspitze & Abendspitze": "#FF4500",
+			"Abendspitze": "#ffb800",   
+			"Morgenspitze": "#ffff00",
+		};
+		Object.entries(legendItems).forEach(([label, color]) => {
+			let legendSymbolBottleneck = {
+				text: label,
+				symbolType: "arrow",
+				fill: color,
+				arrowSize: 14,
+				arrowLength: 8,
+				directInsert: true,
+			}
+			addLegendSymbol('#legend-bottlenecks', legendSymbolBottleneck);
+		});
+		console.log("Added legend entry for Bottlenecks.");
+
+		firstLoad = false;
     }
 
     console.log("Adding Source and layers");
@@ -173,7 +217,7 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 		let colorrule = [
 		'match', ['get','Situation'],
 			'Abendspitze', '#ffb800', // from QGIS
-			'Beeinträchtigung des ÖPNV', '#c80007',
+			'Beeinträchtigung des ÖPNV', 'steelblue',
 			'Beeinträchtigung des Radverkehrs', '#d1f700',
 			'Morgenspitze', '#ffff00',
 			'Morgenspitze & Abendspitze', '#FF4500',

@@ -14,6 +14,8 @@ export function addLegendSymbol(
         rectWidth = 20,
         rectHeight = 10,
         directInsert = false,
+        arrowSize = 12, // controls arrowhead size
+        arrowLength = 20, // controls shaft length
     }
 ) {
     const legendItem = document.createElement("div");
@@ -52,8 +54,30 @@ export function addLegendSymbol(
             symbol.style.backgroundColor = fill;
         }
         symbol.style.border = `${strokeThickness}px solid ${stroke}`;
+    } else if (symbolType === "arrow") {
+        // Wrapper for shaft + head
+        symbol.style.display = "flex";
+        symbol.style.alignItems = "center";
+        // symbol.style.filter = "drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3))";
+
+        // Shaft (rectangle)
+        const shaft = document.createElement("div");
+        shaft.style.width = arrowLength + "px";
+        shaft.style.height = Math.max(2, Math.floor(arrowSize / 3)) + "px";
+        shaft.style.backgroundColor = fill;
+
+        // Head (triangle)
+        const head = document.createElement("div");
+        head.style.width = "0";
+        head.style.height = "0";
+        head.style.borderTop = `${arrowSize / 2}px solid transparent`;
+        head.style.borderBottom = `${arrowSize / 2}px solid transparent`;
+        head.style.borderLeft = `${arrowSize}px solid ${fill}`;
+
+        symbol.appendChild(shaft);
+        symbol.appendChild(head);
     } else {
-        throw new Error("Invalid symbol type. Use 'circle', 'line', 'image', or 'rectangle'.");
+        throw new Error("Invalid symbol type. Use 'circle', 'line', 'image', 'rectangle', or 'arrow'.");
     }
 
     const labelText = document.createElement("span");
@@ -63,18 +87,11 @@ export function addLegendSymbol(
     legendItem.appendChild(symbol);
     legendItem.appendChild(labelText);
 
-    if(!directInsert)
+    if (!directInsert) {
         $(targetElementID).parent().after(legendItem);
-    else
-        {
-            legendItem.style.marginLeft = "1px";
-            legendItem.style.gap = "4px";
-            $(targetElementID).after(legendItem);
-        }
-
-
+    } else {
+        legendItem.style.marginLeft = "1px";
+        legendItem.style.gap = "4px";
+        $(targetElementID).after(legendItem);
+    }
 }
-
-
-
-
