@@ -28,7 +28,7 @@ export function addStrategicNetworkPT(map) {
         });
     
         let legendSymbolMobilitätsstationen = {
-            text : "Mobilstationen",
+            text : "Mobilstationen (Potentiale)",
             symbolType: "rectangle",
             fill: "rgba(34, 139, 34, 0.5)",
             strokeThickness: 0,
