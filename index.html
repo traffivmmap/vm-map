@@ -32,7 +32,19 @@
 </style>
 </head>
 <body>
-	<div class="container">
+
+<script>
+
+
+  // rest of your code here
+
+</script>
+
+
+
+
+
+	<div class="container" id="protected" style="display:none">
 	  <div class="map-container">
 		  <div class="main-window" id='map'>
 		  <div id="map-buttons-container" style="display: flex; justify-content: space-between;">
@@ -172,6 +184,16 @@
 	</template>
 
 <script type="module">
+
+    const password = "rvm";
+    const entered = prompt("Passwort:");
+    if (entered !== password) {
+      document.body.innerHTML = "Zugriff verweigert.";
+	  throw new Error("Wrong password");
+    } else {
+      document.getElementById("protected").removeAttribute("style");
+
+    };
 
 	import { addStrategicNetworkBike } from "./addStrategicNetworkBike.js";
 	import { addStrategicNetworkPT } from "./addStrategicNetworkPT.js";
