@@ -13,7 +13,7 @@
     "smarttiles_de": {
       "type": "vector",
       "attribution": "&copy; 2025 basemap.de / BKG | Datenquellen: © GeoBasis-DE",
-      "url": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/tiles/v1/bm_web_de_3857/bm_web_de_3857.json"
+      "url": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/tiles/v2/bm_web_de_3857/bm_web_de_3857.json"
     }
   },
   "sprite": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/sprites/bm_web_col_sprite",
