@@ -18,7 +18,15 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      # 3️⃣ Upload files via SFTP using username + password
+      # 3️⃣ Add SFTP host to known_hosts
+      - name: Add SFTP host to known_hosts
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $SFTP_HOST >> ~/.ssh/known_hosts
+
+      # 4️⃣ Upload files via SFTP using username + password
       - name: Upload files to SFTP
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
@@ -27,6 +35,6 @@ jobs:
           SFTP_REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
         run: |
           lftp -u $SFTP_USER,$SFTP_PASSWORD sftp://$SFTP_HOST -e "
-            mirror -R --exclude-glob .git* ./ $SFTP_REMOTE_PATH;
+            mirror -R --exclude-glob .git* --exclude-glob .github* ./ $SFTP_REMOTE_PATH;
             quit
           "
