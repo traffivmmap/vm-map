@@ -33,7 +33,9 @@ jobs:
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
         run: |
-          lftp -u $SFTP_USER sftp://$SFTP_HOST <<EOF
-          mirror -R --exclude-glob .git* ./ $SFTP_REMOTE_PATH
-          quit
-          EOF
+          # Use SSH key for lftp
+          lftp sftp://$SFTP_USER@$SFTP_HOST -e "
+            set sftp:connect-program 'ssh -i ~/.ssh/id_ed25519';
+            mirror -R --exclude-glob .git* ./ $SFTP_REMOTE_PATH;
+            quit
+          "
