@@ -16,25 +16,17 @@ jobs:
 
       # 2️⃣ Install lftp for SFTP upload
       - name: Install lftp
-        run: sudo apt-get install lftp -y
+        run: sudo apt-get update && sudo apt-get install -y lftp
 
-      # 3️⃣ Set up SSH key
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SFTP_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.SFTP_HOST }} >> ~/.ssh/known_hosts
-
-      # 4️⃣ Upload files via SFTP, excluding .git and .gitignore
+      # 3️⃣ Upload files via SFTP using username + password
       - name: Upload files to SFTP
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
           SFTP_REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
         run: |
-          lftp sftp://$SFTP_USER@$SFTP_HOST -e "
-            set sftp:connect-program \"ssh -i \$HOME/.ssh/id_ed25519\";
+          lftp -u $SFTP_USER,$SFTP_PASSWORD sftp://$SFTP_HOST -e "
             mirror -R --exclude-glob .git* ./ $SFTP_REMOTE_PATH;
             quit
           "
