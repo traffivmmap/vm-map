@@ -1,0 +1,39 @@
+name: Deploy Website to SFTP
+
+on:
+  push:
+    branches:
+      - main  # change to your deployment branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout your repository
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # 2️⃣ Install lftp for SFTP upload
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      # 3️⃣ Add SFTP host to known_hosts
+      - name: Add SFTP host to known_hosts
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $SFTP_HOST >> ~/.ssh/known_hosts
+
+      # 4️⃣ Upload files via SFTP using username + password
+      - name: Upload files to SFTP
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          lftp -u $SFTP_USER,$SFTP_PASSWORD sftp://$SFTP_HOST -e "
+            mirror -R --exclude-glob .git* --exclude-glob .github* . 
+            quit
+          "
