@@ -244,9 +244,10 @@ export async function addMeasures(map, data_measures, img_route, icon_route)
 			else {
 				clone.querySelector(".sidebar-image").src = img_route + image_name;
 			}
-			clone.querySelector(".headline").textContent = feature.properties.id + ": " + feature.properties.headline;
+			clone.querySelector(".headline").textContent = feature.properties.label + ": " + feature.properties.headline;
 			//clone.querySelector(".cartlink").href = "www.example.com";
 			clone.querySelector(".description").textContent = feature.properties.description;
+
 			clone.querySelector(".sidebar-entry").id = "measure-entry-"  + i;
 
 			clone.querySelector(".sidebar-entry").addEventListener('mouseover', function() {
