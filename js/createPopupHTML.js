@@ -48,3 +48,25 @@ export function createPopupHTMLHaltestelle(properties) {
         </table>
     `;
 }
+
+export function createPopupHTMLGeneric(properties, translations = {}) { 
+    let html = `<table class="popup-table-generic">
+                  <thead>
+                    <tr>
+                      <th>Attribut</th>
+                      <th>Wert</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+
+    for (const key in properties) {
+        html += `
+            <tr>
+                <td>${translations[key] || key}</td>
+                <td>${properties[key]}</td>
+            </tr>
+        `;
+    }
+    html += '</tbody></table>';
+    return html;
+}

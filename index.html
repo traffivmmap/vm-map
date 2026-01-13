@@ -102,6 +102,10 @@
 				<input type="checkbox" id="untersuchungsgebiet" value="untersuchungsgebiet" onchange="switchlayer(['untersuchungsgebiet-line'], 'untersuchungsgebiet')" />
 				<label for="untersuchungsgebiet">Untersuchungsgebiet</label>
 			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="mobilstationen" value="mobilstationen" onchange="switchlayer(['layer-mobilstationen-points', 'layer-mobilstationen-areas'], 'mobilstationen')" />
+				<label for="mobilstationen">Mobilstationen</label>
+			</div>
 			<div id ="gemeinden"></br>Gemeinden</div>
 			<div></br>Strategische Netze</div>
 			<div class="legend-item">
@@ -201,11 +205,12 @@
 	import { addAccidents } from "./addAccidents.js";
 	import { addMunicipalities } from "./addMunicipalities.js";
 	import { addBottlenecks } from "./js/addBottlenecks.js";
+	import { addMobilityStations } from "./js/addMobilityStations.js";
 	import { filterBottlenecks } from "./js/filterBottlenecks.js";
 	import { addMeasures } from "./js/addMeasures.js";
 	import { scrollSidebarToEntry } from "./js/scrollSidebarToEntry.js";
 	import { addStrategies } from "./js/addStrategies.js";
-	import { createPopupHTMLHaltestelle } from './js/createPopupHTML.js';
+	import { createPopupHTMLHaltestelle, createPopupHTMLGeneric } from './js/createPopupHTML.js';
 	// import { addNoise } from "./addNoise.js";
 
 	const locations = {
@@ -288,6 +293,7 @@
 		addStudyArea(map); // Adds Untersuchungsgebiet layer
 		addStrategicNetworkStreets(map);
 		addAccidents(map);
+		addMobilityStations(map);
 		// addNoise(map);
 		addMunicipalities(map); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
@@ -660,10 +666,8 @@ function handleMapClicks(){
 			case 'lsa-layer':
 			case 'lsa-osm-layer':
 			case 'layer-car-sharing':
+			case 'layer-mobilstationen-points':
 
-				Object.keys(topmostFeature.properties).forEach(function(key) {
-					txt = txt + key + ': ' + topmostFeature.properties[key] + "<br />"
-				})
 				console.log(e.lngLat)
 
 					//.setLngLat(turf.center(topmostFeature).geometry.coordinates)
@@ -677,9 +681,14 @@ function handleMapClicks(){
 				// Convert the new screen coordinates back to geographical coordinates
 				var newLngLat = map.unproject(offsetPixels);
 
+				var translations = {
+					'stop_name': 'Name der Haltestelle',
+					'source': 'Quelle',
+					'rating': 'Wertung',
+				};
 				new maplibregl.Popup()	
 					.setLngLat(e.lngLat)
-					.setHTML(txt)
+					.setHTML(createPopupHTMLGeneric(topmostFeature.properties, translations))
 					.addTo(map)
 
 				break;
@@ -773,7 +782,7 @@ function handleMapClicks(){
 					.setHTML(createPopupHTMLHaltestelle(topmostFeature.properties))
 					.addTo(map)
 				break; 
-			case 'layer-Mobilitätsstationen':
+			case 'layer-mobilstationen-areas':
 				txt = "Mobilstation:<br>Dieser Bereich stellt einen multimodalen Knoten dar, von dem aus mindestens drei verschiedene Mobilitätsformen fußläufig (Entfernung unter 100 Meter) erreicht werden können.";
 				new maplibregl.Popup()	
 					.setLngLat(e.lngLat)
@@ -934,7 +943,7 @@ function Print(format) {
 
 function handlePointer()
 {
-	const layers = [/* 'bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',  */'layer-Mobilitätsstationen', 'haltestellen-outlines', 'haltestellen-fill',
+	const layers = [/* 'bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',  */'layer-mobilstationen-areas', 'layer-mobilstationen-points', 'haltestellen-outlines', 'haltestellen-fill',
 					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations', 'Scooter-Leihstationen',
 					'Fahrradabstellanlagen',
 					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing']; // Array of layers to apply the effect

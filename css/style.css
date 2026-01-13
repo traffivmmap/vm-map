@@ -259,6 +259,28 @@ a:visited {
 		text-decoration: none; 
 }
 
+.popup-table-generic{
+  border-collapse: collapse;
+}
+
+.popup-table-generic table,
+.popup-table-generic th,
+.popup-table-generic td {
+  border: 1px solid #d8d8d8;
+	padding: 3px 6px;
+	white-space: normal;         /* allow wrapping */
+  word-break: break-word;      /* split long words if necessary */
+  overflow-wrap: break-word;   /* newer standard for word wrapping */
+}
+
+.popup-table-generic td:nth-child(2){
+  text-align: right;
+}
+
+.popup-table-generic thead{
+  text-align: center;
+}
+
 a:hover,
 a:active {
     text-decoration: underline; 
