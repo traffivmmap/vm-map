@@ -196,7 +196,7 @@
     };
 
 	import { addStrategicNetworkBike } from "./addStrategicNetworkBike.js";
-	import { addStrategicNetworkPT } from "./addStrategicNetworkPT.js";
+	import { addStrategicNetworkPT } from "./js/addStrategicNetworkPT.js";
 	import { addStrategicNetworkStreets } from "./addStrategicNetworkStreets.js";
 	import { addAccidents } from "./addAccidents.js";
 	import { addMunicipalities } from "./addMunicipalities.js";
@@ -205,6 +205,7 @@
 	import { addMeasures } from "./js/addMeasures.js";
 	import { scrollSidebarToEntry } from "./js/scrollSidebarToEntry.js";
 	import { addStrategies } from "./js/addStrategies.js";
+	import { createPopupHTMLHaltestelle } from './js/createPopupHTML.js';
 	// import { addNoise } from "./addNoise.js";
 
 	const locations = {
@@ -734,7 +735,7 @@ function handleMapClicks(){
 				}
 
 				break;
-			case 'bus-labels':
+/* 			case 'bus-labels':
 			case 'bus-lines':
 				var ref = topmostFeature.properties.ref
 				txt = 'In diesem Abschnitt fahren die Buslinien:<br />' + ref
@@ -763,19 +764,15 @@ function handleMapClicks(){
 					.setLngLat(e.lngLat)
 					.setHTML(txt)
 					.addTo(map)
-				break;
+				break; */
 
-			case 'haltestellen-outlines':
+ 			case 'haltestellen-outlines':
 			case 'haltestellen-fill':
-				var l = topmostFeature.properties.l
-				var n = topmostFeature.properties.n
-				l = l.replace(/[{}']/g, "");
-				txt = n + '<br />Diese Haltestelle wird von folgenden Linien bedient:<br />' + l
 				new maplibregl.Popup()	
 					.setLngLat(e.lngLat)
-					.setHTML(txt)
+					.setHTML(createPopupHTMLHaltestelle(topmostFeature.properties))
 					.addTo(map)
-				break;
+				break; 
 			case 'layer-Mobilitätsstationen':
 				txt = "Mobilstation:<br>Dieser Bereich stellt einen multimodalen Knoten dar, von dem aus mindestens drei verschiedene Mobilitätsformen fußläufig (Entfernung unter 100 Meter) erreicht werden können.";
 				new maplibregl.Popup()	
@@ -937,7 +934,7 @@ function Print(format) {
 
 function handlePointer()
 {
-	const layers = ['bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines', 'layer-Mobilitätsstationen',
+	const layers = [/* 'bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',  */'layer-Mobilitätsstationen', 'haltestellen-outlines', 'haltestellen-fill',
 					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations', 'Scooter-Leihstationen',
 					'Fahrradabstellanlagen',
 					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing']; // Array of layers to apply the effect

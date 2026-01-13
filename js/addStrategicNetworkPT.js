@@ -1,4 +1,4 @@
-import { addLegendSymbol } from "./js/addLegendSymbol.js";
+import { addLegendSymbol } from "./addLegendSymbol.js";
 
 let legendSymbolsAdded = false;
 
@@ -71,7 +71,7 @@ export function addStrategicNetworkPT(map) {
     });
 
     // Add labels on top of the lines
-    map.addLayer({
+/*     map.addLayer({
         id: 'bus-labels',
         type: 'symbol',
         source: 'strategicNetworkBus',
@@ -91,7 +91,7 @@ export function addStrategicNetworkPT(map) {
             'text-halo-color': '#ffffff', // White halo for readability
             'text-halo-width': 2
         }
-    });
+    }); */
 
 
     let legendSymbolBus = {
@@ -134,7 +134,7 @@ export function addStrategicNetworkPT(map) {
             ],
         }
     });
-    map.addLayer({
+/*     map.addLayer({
         id: 'zug-labels',
         type: 'symbol',
         source: 'strategicNetworkZug',
@@ -154,7 +154,7 @@ export function addStrategicNetworkPT(map) {
             'text-halo-color': '#ffffff',
             'text-halo-width': 2
         }
-    });
+    }); */
 
     let legendSymbolZug = {
         text : "Zug",
@@ -194,7 +194,7 @@ export function addStrategicNetworkPT(map) {
             ],
         }
     });
-    map.addLayer({
+/*     map.addLayer({
         id: 'stadtbahn-labels',
         type: 'symbol',
         source: 'strategicNetworkStadtbahn',
@@ -214,7 +214,7 @@ export function addStrategicNetworkPT(map) {
             'text-halo-color': '#ffffff',
             'text-halo-width': 2
         }
-    });
+    }); */
 
     let legendSymbolStadtBahn = {
         text : "Stadtbahn",
@@ -234,15 +234,15 @@ export function addStrategicNetworkPT(map) {
     //--------------------------------------------Haltestellen-----------------------------------
 
     map.addSource('strategicNetworkHaltestellen', {
-        type: 'geojson',
-        data: 'data/geojson/strategic-networks/pt/haltestellen.geojson',
-        generateId: true
+        type: 'vector',
+        url: 'https://api.mobidata-bw.de/geoserver/gwc/service/wmts/rest/MobiData-BW:transit_stops/MobiData-BW:mdbw_transit_stops_default/tilejson/pbf?format=application/json',
     });
 
     map.addLayer({
         id: 'haltestellen-fill',
         type: 'circle',
         source: 'strategicNetworkHaltestellen',
+        'source-layer': 'transit_stops',
         minzoom: 12,
         layout: {
             'visibility': 'none',

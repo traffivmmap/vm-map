@@ -256,11 +256,12 @@ html {
 a:link,
 a:visited {
     color: inherit;           /* Match surrounding text */
+		text-decoration: none; 
 }
 
 a:hover,
 a:active {
-    color: #007acc;           /* Your highlight color */
+    text-decoration: underline; 
 }
 
 @media only screen and (max-width: 750px) {
