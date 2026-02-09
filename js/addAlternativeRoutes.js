@@ -2,6 +2,7 @@ import { CreateCategoryGroup } from "./createCategoryGroup.js";
 import { createSidebarEntry } from "./createSidebarEntry.js";
 import { mappings } from "./store.js"
 import { MapHelpers } from "./mapHelpers.js"
+import { addLegendSymbol } from "./addLegendSymbol.js";
 
 let firstload = true;
 
@@ -107,6 +108,21 @@ export function addAlternativeRoutes(map, data_alternative_routes) {
   });
 
   if (firstload) {
+
+			let legendSymbolAlternativeRoute = {
+				text: "Alternativroute",
+				symbolType: "arrow",
+				fill: arrowColor,
+				arrowSize: 14,
+				arrowLength: 8,
+				directInsert: true,
+			}
+			addLegendSymbol('#legend-measures', legendSymbolAlternativeRoute);
+
+		console.log("Added legend entry for alternative routes.");
+
+
+
     let catGroup = CreateCategoryGroup("Alternativroute");
 
     // Add behaviour of the Checkbox

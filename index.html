@@ -189,15 +189,15 @@
 
 <script type="module">
 
-    // const password = "rvm";
-    // const entered = prompt("Passwort:");
-    // if (entered !== password) {
-    //   document.body.innerHTML = "Zugriff verweigert.";
-	  // throw new Error("Wrong password");
-    // } else {
+    const password = "rvm";
+    const entered = prompt("Passwort:");
+    if (entered !== password) {
+      document.body.innerHTML = "Zugriff verweigert.";
+	  throw new Error("Wrong password");
+    } else {
        document.getElementById("protected").removeAttribute("style");
 
-    // };
+    };
 
 	import { addStrategicNetworkBike } from "./addStrategicNetworkBike.js";
 	import { addStrategicNetworkPT } from "./js/addStrategicNetworkPT.js";
