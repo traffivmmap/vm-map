@@ -64,8 +64,16 @@ html {
 	filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.15));
 }
 
+.sidebar-entry.highlight {
+	background-color: #fffeacff;
+}
+
 .category {
 	display:flex;
+}
+
+.category:hover {
+	background-color: #fffeacff;
 }
 
 .title {
@@ -84,6 +92,15 @@ html {
 	height: 64px;
 	background-size: contain;
 	cursor: pointer;
+}
+
+.marker.highlight {
+	width: 54px;
+	height: 80px;
+}
+
+.marker.highlight .marker_svg {
+	filter: drop-shadow(1px 1px 4px rgba(0, 0, 0, 0.3)) brightness(140%);
 }
 
 .marker_text_svg {
@@ -182,6 +199,11 @@ html {
 
 .tab-container {
 	display: flex; /* or inline-flex */
+}
+
+input[type="checkbox"]:hover {
+    /* make mouse pointer a hand */
+    cursor: pointer;
 }
 
 .info-links {

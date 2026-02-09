@@ -172,7 +172,7 @@
 		<header>
 			<div class="headline">Überschrift</div>		 
 		</header>
-		<div class="image-container"><img class="sidebar-image" loading="lazy" src=""  alt = ""></div>
+		<div class="image-container" style="display:none"><img class="sidebar-image" loading="lazy" src=""  alt = ""></div>
 		<div class="description" lang="de">Beschreibung</div>
 		<!-- <div class="tartlink"><a class="cartlink" href="">In den Warenkorb</a></div> -->
 		</div>
@@ -189,15 +189,15 @@
 
 <script type="module">
 
-    const password = "rvm";
-    const entered = prompt("Passwort:");
-    if (entered !== password) {
-      document.body.innerHTML = "Zugriff verweigert.";
-	  throw new Error("Wrong password");
-    } else {
-      document.getElementById("protected").removeAttribute("style");
+    // const password = "rvm";
+    // const entered = prompt("Passwort:");
+    // if (entered !== password) {
+    //   document.body.innerHTML = "Zugriff verweigert.";
+	  // throw new Error("Wrong password");
+    // } else {
+       document.getElementById("protected").removeAttribute("style");
 
-    };
+    // };
 
 	import { addStrategicNetworkBike } from "./addStrategicNetworkBike.js";
 	import { addStrategicNetworkPT } from "./js/addStrategicNetworkPT.js";
@@ -205,6 +205,7 @@
 	import { addAccidents } from "./addAccidents.js";
 	import { addMunicipalities } from "./addMunicipalities.js";
 	import { addBottlenecks } from "./js/addBottlenecks.js";
+	import { addAlternativeRoutes } from "./js/addAlternativeRoutes.js"
 	import { addMobilityStations } from "./js/addMobilityStations.js";
 	import { filterBottlenecks } from "./js/filterBottlenecks.js";
 	import { addMeasures } from "./js/addMeasures.js";
@@ -269,9 +270,9 @@
 	const data_bottlenecks = await (await fetch('data/geojson/problemstellen.geojson')).json();
 	let data_measures = await (await fetch('data/geojson/massnahmen.geojson')).json();
 	const data_streets = await (await fetch('data/geojson/strategic-networks/iv/BLK.geojson')).json();
+	window.data_alternative_routes = await (await fetch('data/geojson/alternativrouten.geojson')).json();
 
 	const img_route = 'data/images/'
-	const icon_route = 'data/icons/'
 
 	window.cursorOnMarker = false;
 
@@ -298,9 +299,10 @@
 		addMunicipalities(map); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
 		addTraffic(); // Adds realtime traffic layer to map.
+		await addAlternativeRoutes(map, data_alternative_routes);
 		await addBottlenecks(map, data_bottlenecks, img_route); // Adds bottlenecks layer to the map.
-		await addMeasures(map, data_measures, img_route, icon_route); // Adds measures layer to the map.
-		await addStrategies(map, data_bottlenecks, data_measures); // Adds strategies to the sidebar. Doesn't touch the map
+		await addMeasures(map, data_measures, img_route); // Adds measures layer to the map.
+		await addStrategies(map, data_bottlenecks, data_measures, window.data_alternative_routes); // Adds strategies to the sidebar. Doesn't touch the map
 		handleMapClicks();
 		handleHovering();
 		handlePointer();
@@ -326,6 +328,7 @@
 		// addNoise(map);
 		addMunicipalities(map);
 		addCounties();
+		addAlternativeRoutes(map, data_alternative_routes);
 		addBottlenecks(map, data_bottlenecks, img_route);
 		console.log("style.load called");
 
@@ -437,39 +440,145 @@
 		// $("#strategies").toggle(); // hides the strategies div in the sidebar.
 		$("#measures").toggle(); // hides the measures div in the sidebar.
 
-		$("#tab-bottlenecks > #visibility-checkbox").on('click',  (event) => {		
+		$("#tab-bottlenecks > #visibility-checkbox").on('change',  (event) => { 
+			// If bottlenecks was checked, ensure strategies is unchecked and trigger the strategies change handler
+			let groups = $('#bottlenecks .category-group');
+			console.log(groups);
 			if($(event.target).prop('checked'))
 			{
-				if ($("#tab-strategies > #visibility-checkbox").prop('checked'))
-					$("#tab-strategies > #visibility-checkbox").click()
+				if ($("#tab-strategies > #visibility-checkbox").prop('checked')){
+					$("#tab-strategies > #visibility-checkbox").prop('checked', false);
+					$("#tab-strategies > #visibility-checkbox").trigger('change');
+				}
+				// if there is no bottleneck category group checked, set the checkboxes of all bottlenecks category groups to true and trigger the change behaviour only of the last one
+				let anyChecked = false;
+				groups.each(function() {
+					if ($(this).find("#visibility-checkbox").prop('checked')) {
+						anyChecked = true;
+						return false; // break the loop
+					}
+				});
+				if (!anyChecked) {
+					console.log("Trying to set all bottleneck checkboxes to true");
+					var omitted;
+					// set the checkboxes to true. Don't trigger the change event yet.
+					groups.each(function() {
+						if ($(this).data("category") === "Zurückgestellte Problemstellen")
+							omitted = this;
+						  $(this).find("#visibility-checkbox").prop('checked', true);
+					});
+					// find the category group with the data attribute "Zurückgestellte Problemstelle". Set the checkbox to false and trigger its change event.
+          if (omitted){
+						console.log("Omitting Zurückgestellte Problemstelle and triggering change");
+						$(omitted).find("#visibility-checkbox").prop('checked', false);
+						$(omitted).find("#visibility-checkbox").trigger('change');
+						}
+				}
+
 			}
-			// event.stopPropagation();
-			toggleBottleneckLayer();
+			// if it was unchecked, also uncheck all bottleneck category groups. Trigger the change handler only of the last one
+			else
+			{
+				let lastGroup = null;
+				groups.each(function() {
+					$(this).find("#visibility-checkbox").prop('checked', false);
+					lastGroup = this;
+				});
+				if (lastGroup) {
+					console.log("Triggering change for last bottleneck category group");
+					console.log(lastGroup);
+					$(lastGroup).find("#visibility-checkbox").trigger('change');
+				}
+					}
 		});
 
-		$("#tab-measures > #visibility-checkbox").on('click',  (event) => {
+		$("#tab-measures > #visibility-checkbox").on('change',  (event) => {
+			let groups = $('#measures .category-group');
+			// If measures was checked, ensure strategies is unchecked and trigger the strategies change handler
 			if($(event.target).prop('checked'))
 			{
-				if ($("#tab-strategies > #visibility-checkbox").prop('checked'))
-					$("#tab-strategies > #visibility-checkbox").click()
-			}
+				console.log("Measures tab was changed to true");
+//				console.trace("Trace for: Measures checked to true");
 
-			// event.stopPropagation();
-			toggleMeasuresLayer();
+					if ($("#tab-strategies > #visibility-checkbox").prop('checked')){
+					$("#tab-strategies > #visibility-checkbox").prop('checked', false);
+					$("#tab-strategies > #visibility-checkbox").trigger('change');
+				}
+
+		    let anyChecked = false;
+				groups.each(function() {
+					if ($(this).find("#visibility-checkbox").prop('checked')) {
+						anyChecked = true;
+						return false; // break the loop
+					}
+				});
+				if (!anyChecked)
+				{
+				// check all measure category groups and trigger the change event
+				$('#measures .category-group').each(function() {
+					$(this).find("#visibility-checkbox").prop('checked', true);
+					console.log("Triggering change in a measure group (" + $(this).data("category") + ").");
+					$(this).find("#visibility-checkbox").trigger('change');
+				}); }
+			}
+			// if it was unchecked, also uncheck measures and trigger its change handler
+			else
+			{	
+				$('#measures .category-group').each(function() {
+					$(this).find("#visibility-checkbox").prop('checked', false);
+					$(this).find("#visibility-checkbox").trigger('change');
+				}); 
+			}
 		}); 
 
-		$("#tab-strategies > #visibility-checkbox").on('click',  (event) => {
-			// deactivate tab measures and bottlenecks if turned on
+		$("#tab-strategies > #visibility-checkbox").on('change',  (event) => {
+			// If strategies was checked, ensure other tabs are unchecked and trigger their change handlers
+						let groups = $('#strategies .category-group');
 			if($(event.target).prop('checked'))
 			{
-				if ($("#tab-bottlenecks > #visibility-checkbox").prop('checked'))
-					$("#tab-bottlenecks > #visibility-checkbox").click()
-				if ($("#tab-measures > #visibility-checkbox").prop('checked'))
-					$("#tab-measures > #visibility-checkbox").click()
-			}
-			// event.stopPropagation();
-			toggleStrategiesLayer();
+				console.log("Strategies tab was checked!");
+				if ($("#tab-bottlenecks > #visibility-checkbox").prop('checked')){
+					$("#tab-bottlenecks > #visibility-checkbox").prop('checked', false);
+					$("#tab-bottlenecks > #visibility-checkbox").trigger('change');
+				}
+				if ($("#tab-measures > #visibility-checkbox").prop('checked')){
+					$("#tab-measures > #visibility-checkbox").prop('checked', false);
+					$("#tab-measures > #visibility-checkbox").trigger('change');
+				}
+		    let anyChecked = false;
+				groups.each(function() {
+					if ($(this).find("#visibility-checkbox").prop('checked')) {
+						anyChecked = true;
+						return false; // break the loop
+					}
+				});
+				if (!anyChecked)
+				{
+					// check the first strategy category group and trigger the change event
+					$('#strategies .category-group').each(function() {
+						$(this).find("#visibility-checkbox").prop('checked', true);
+						console.log("Triggering change in a strategy group");
+						$(this).find("#visibility-checkbox").trigger('change');
+						return false; // break the loop after checking the first group	
+					});
+			  }
+				
+			
 
+			}
+			// if it was unchecked, also uncheck strategies and trigger its change handler
+			else
+			{
+				console.log("Strategies tab was unchecked!");
+				// Only uncheck and trigger change for category checkboxes that are currently checked
+				$('#strategies .category-group').each(function() {
+					let $cb = $(this).find("#visibility-checkbox");
+					if ($cb.prop('checked')) {
+						$cb.prop('checked', false);
+						$cb.trigger('change');
+					}
+				});
+			}
 		}); 
 
 		// initiate styles dropdown
@@ -554,69 +663,6 @@
         });
     }
 
-	// Sets the state of the checkboxes in the bottlenecks groups according to the checkbox of the bottlenecks tab
-	function toggleBottleneckLayer() {
-
-		let main = $('#tab-bottlenecks :input[type="checkbox"]');
-		let isChecked = main.prop('checked');
-		if (isChecked)
-		{
-			// $('#bottlenecks').find('input:checkbox:not(:checked)').trigger('click');
-			$('#bottlenecks')
-				.find('input:checkbox:not(:checked)')
-				.filter(function () {
-					return $(this)
-					.parent()
-					.parent()
-					.attr('data-category') !== 'Zurückgestellte Problemstellen';
-				})
-				.trigger('click');
-		}
-		else
-		{
-			$('#bottlenecks').find('input:checkbox:checked').trigger('click');
-		}
-
-		filterBottlenecks(map);
-	}
-
-	function toggleMeasuresLayer() {
-		let main = $('#tab-measures :input[type="checkbox"]');
-		let isChecked = main.prop('checked');
-		if (isChecked)
-		{
-			main.parent().parent().siblings("#measures").find('input:checkbox:not(:checked)').trigger('click');
-		}
-		else
-		{
-			main.parent().parent().siblings("#measures").find('input:checkbox:checked').trigger('click');
-		}
-	}
-
-	function toggleStrategiesLayer() {
-		let main = $('#tab-strategies :input[type="checkbox"]');
-		let isChecked = main.prop('checked');
-		var elements
-		if (isChecked)
-		{
-			// uncheck all
-			elements = main.parent().parent().siblings("#strategies").find('input:checkbox:checked')
-			if (elements)
-				elements.trigger('click');
-
-			//Check only first 
-			elements = main.parent().parent().siblings("#strategies").find('input:checkbox')[0]
-			if (elements)
-				elements.click()
-		}
-		else
-		{
-			var elements = main.parent().parent().siblings("#strategies").find('input:checkbox:checked')
-			if(elements)
-				elements.trigger('click');
-		}
-	}
-
 	window.switchlayer = switchlayer;
 	function switchlayer (layers, checkboxId) {
 	for(var layer of layers)
@@ -643,8 +689,10 @@ function handleMapClicks(){
 		// If no features are found, return early
 		if (features.length == 0)
 			return;
-		
+		 
 		const topmostFeature = features[0];
+		let featureId = topmostFeature.id;
+
 		const layerId = topmostFeature.layer.id;
 		console.log("Clicked " + layerId);
 		let txt = ''
@@ -702,7 +750,6 @@ function handleMapClicks(){
 
 			// Find the nearest point on the line
 			let clickPoint = [e.lngLat.lng, e.lngLat.lat]
-			let featureId = topmostFeature.id
 			console.log(featureId)
 			let sourceFeature = data_streets.features[featureId]
 			// Extract the sliced line from start to snapped point
@@ -728,22 +775,44 @@ function handleMapClicks(){
 				console.log("Problemstelle angeklickt");
 				console.log(topmostFeature.properties.id)
 				// ID comes from the geojson.
-				let id = topmostFeature.properties.id 
+
 				// check which layer is active
 				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
 				{
 					$("#tab-strategies").click();
-					let sidebarEntry = document.getElementById("strategy-bottleneck-entry-"+id)
+					let sidebarEntry = document.getElementById("strategy-bottleneck-entry-"+featureId)
 					scrollSidebarToEntry(sidebarEntry);		
 				}
 				if($('#tab-bottlenecks :input[type="checkbox"]').prop('checked'))
 				{
 					$("#tab-bottlenecks").click();
-					let sidebarEntry = document.getElementById("Problemstelle-" + id)
+					let sidebarEntry = document.getElementById("Problemstelle-" + featureId)
 					scrollSidebarToEntry(sidebarEntry);		
 				}
 
 				break;
+
+			case 'alternativrouten-layer':
+				console.log("Alternativroute angeklickt");
+				console.log(featureId)
+				// ID comes from the geojson.
+
+				// check which layer is active
+				if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
+				{
+					$("#tab-strategies").click();
+					let sidebarEntry = document.getElementById("strategy-alternative-route-entry-"+ featureId)
+					console.log(sidebarEntry)
+					scrollSidebarToEntry(sidebarEntry);		
+				}
+				if($('#tab-measures :input[type="checkbox"]').prop('checked'))
+				{
+					$("#tab-measures").click();
+					let sidebarEntry = document.getElementById("alternative-route-entry-" + featureId)
+					console.log(sidebarEntry)
+					scrollSidebarToEntry(sidebarEntry);		
+				}
+			break;
 /* 			case 'bus-labels':
 			case 'bus-lines':
 				var ref = topmostFeature.properties.ref
@@ -814,7 +883,7 @@ function handleHovering(){
 			currentLayerId = currentFeature.layer.id;
 			for(let i = 0; i<3; i++)
 			{
-				if(!(["landkreise-fill", "layer-problemstellen-fill"].includes(currentLayerId)))
+				if(!(["landkreise-fill", "layer-problemstellen-fill", "alternativrouten-layer"].includes(currentLayerId)))
 				{
 					if(features[i+1])
 					{
@@ -946,7 +1015,9 @@ function handlePointer()
 	const layers = [/* 'bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',  */'layer-mobilstationen-areas', 'layer-mobilstationen-points', 'haltestellen-outlines', 'haltestellen-fill',
 					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations', 'Scooter-Leihstationen',
 					'Fahrradabstellanlagen',
-					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing']; // Array of layers to apply the effect
+					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing',
+				  'layer-problemstellen-fill',
+					'alternativrouten-layer']; // Array of layers to apply the effect
 
 	layers.forEach(layer => {
 		map.on('mouseenter', layer, () => {

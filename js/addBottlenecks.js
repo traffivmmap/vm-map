@@ -37,7 +37,7 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 			let catGroup = CreateCategoryGroup(feature.properties.Situation);
 			if(catGroup) 
 			{		
-				catGroup.querySelector("#visibility-checkbox").addEventListener('click',  (event) => {
+				$(catGroup.querySelector("#visibility-checkbox")).on('change',  (event) => {
 					event.stopPropagation();
 					filterBottlenecks(map);
 					//$(".maplibregl-marker").trigger("togglevisibility", [feature.properties.category])
@@ -132,13 +132,10 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 
 		let problemstelleID = null;		
 		map.on('mousemove', 'layer-problemstellen-fill', (event) => {
-			map.getCanvas().style.cursor = 'pointer';
 			if (event.features.length === 0)
 				return;
-			// When the mouse moves over the layer, update the
-			// feature state for the feature under the mouse
 			if (problemstelleID != null) {
-				map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: false});
+				
 				// Use querySelectorAll to find both elements
 				let elements = document.querySelectorAll('#Problemstelle-' + problemstelleID + ', #strategy-bottleneck-entry-' + problemstelleID);
 				// Loop through the NodeList and dispatch the event for each element
@@ -147,7 +144,7 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 				});
 			}
 			problemstelleID = event.features[0].id;
-			map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: true});
+			
 			// Use querySelectorAll to find both elements
 			let elements = document.querySelectorAll('#Problemstelle-' + problemstelleID + ', #strategy-bottleneck-entry-' + problemstelleID);
 				// Loop through the NodeList and dispatch the event for each element
@@ -158,11 +155,11 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 
         });
         map.on('mouseleave', 'layer-problemstellen-fill', () => {
-			map.getCanvas().style.cursor = '';
+			//map.getCanvas().style.cursor = '';
 			// When the mouse leaves the layer layer, update the
         	// feature state of the previously hovered feature
         	if (problemstelleID != null) {
-        		map.setFeatureState({source: 'source-problemstellen', id: problemstelleID}, {hover: false});
+        	
 				// Use querySelectorAll to find both elements
 				let elements = document.querySelectorAll('#Problemstelle-' + problemstelleID + ', #strategy-bottleneck-entry-' + problemstelleID);
 				// Loop through the NodeList and dispatch the event for each element
@@ -237,27 +234,27 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 		];
 	
 		// add 4 layers: line stroke, arrow-stroke, line-fill and arrow-fill
- 		map.addLayer({
-            'id': 'layer-problemstellen-stroke',
-            'type': 'line',
-            'source': 'source-problemstellen',
-            'layout': {
-                //'line-join': 'round',
-                'line-cap': 'round',
-            },
-            'paint': {
-				'line-blur': 15,
-				'line-offset': offset,
-                'line-color': 'black',
-				'line-opacity': strokeopacity,
-                'line-width': 
+	map.addLayer({
+		'id': 'layer-problemstellen-stroke',
+		'type': 'line',
+		'source': 'source-problemstellen',
+		'layout': {
+			//'line-join': 'round',
+			'line-cap': 'round',
+		},
+		'paint': {
+			'line-blur': 15,
+			'line-offset': offset,
+			'line-color': 'black',
+			'line-opacity': strokeopacity,
+			'line-width':
 				[
 					'case', ['boolean', ['feature-state', 'hover'], false],
 					arrowthickness * 2 * 1.5,
 					arrowthickness * 2,
 				],
-            },
-        });
+		},
+	});
 		map.addLayer({
             'id': 'layer-problemstellen-arrow-stroke',
             'type': 'symbol',
@@ -324,26 +321,26 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
    			}
         });  
 
-		map.addLayer({
-            'id': 'layer-problemstellen-fill',
-            'type': 'line',
-            'source': 'source-problemstellen',
-            'layout': {
-                //'line-join': 'round',
-				'line-cap': 'round',
-            },
-            'paint': {
-				'line-offset': offset,
-                'line-color': colorrule,
-				//NOT SUPPORTED :(
-				//'line-border-width':1,
-                'line-width': [
-					'case', ['boolean', ['feature-state', 'hover'], false],
-					arrowthickness * 1.5,
-					arrowthickness,
-				],
-            },
-        });
+	map.addLayer({
+		'id': 'layer-problemstellen-fill',
+		'type': 'line',
+		'source': 'source-problemstellen',
+		'layout': {
+			//'line-join': 'round',
+			'line-cap': 'round',
+		},
+		'paint': {
+			'line-offset': offset,
+			'line-color': colorrule,
+			//NOT SUPPORTED :(
+			//'line-border-width':1,
+			'line-width': [
+				'case', ['boolean', ['feature-state', 'hover'], false],
+				arrowthickness * 1.5,
+				arrowthickness,
+			],
+		},
+	});
 
 		filterBottlenecks(map);
 

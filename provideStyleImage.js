@@ -13,15 +13,19 @@ async function provideStyleImage(map)
         let img = await loadImage(svgDataUrl);
         let img1 = await map.loadImage("data/images/arrow.png");
 		let img2 = await map.loadImage("data/images/arrow-big.png");
-        map.addImage('arrow-white', img);
-        map.addImage('arrow-sdf', img1.data,  { sdf: true });
-        map.addImage('arrow-big-sdf', img2.data,  { sdf: true });
+        if (!map.hasImage('arrow-white'))
+          map.addImage('arrow-white', img);
+        if (!map.hasImage('arrow-sdf'))
+          map.addImage('arrow-sdf', img1.data,  { sdf: true });
+        if (!map.hasImage('arrow-big-sdf'))
+          map.addImage('arrow-big-sdf', img2.data,  { sdf: true });
 
 
 
 
         let circleIMG = await map.loadImage("data/images/circle.png");
-        map.addImage('circle', circleIMG.data, { sdf: true });
+        if (!map.hasImage('circle'))
+          map.addImage('circle', circleIMG.data, { sdf: true });
     })
 }
 

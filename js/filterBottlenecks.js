@@ -9,7 +9,7 @@ export function filterBottlenecks(map)
 		else
 		if($('#tab-strategies :input[type="checkbox"]').prop('checked'))
 		{
-			let key = $("#strategies").find("input[type='checkbox']:checked").closest(".category-group").map(function() {return $(this).attr("data-category");}).get();
+			let key = $("#strategies").find("input[type='checkbox']:checked").closest(".category-group").map(function() {return $(this).data("strategy-number");}).get();
 			filter = ["any", ...key.map(strategy => ["==", strategy, ["get", "strategy"]])];
 		}
 		else
@@ -25,5 +25,4 @@ export function filterBottlenecks(map)
 			map.setFilter(['layer-problemstellen-fill'], filter);
 		if(map.getLayer('layer-problemstellen-arrow-fill'))
 			map.setFilter(['layer-problemstellen-arrow-fill'], filter);
-
 }
