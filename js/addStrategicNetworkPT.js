@@ -196,7 +196,7 @@ export function addStrategicNetworkPT(map) {
 
     map.addSource('strategicNetworkHaltestellen', {
         type: 'vector',
-        url: 'https://api.mobidata-bw.de/geoserver/gwc/service/wmts/rest/MobiData-BW:transit_stops/MobiData-BW:mdbw_transit_stops_default/tilejson/pbf?format=application/json',
+        tiles: ["https://api.mobidata-bw.de/geoserver/gwc/service/wmts/rest/MobiData-BW:transit_stops/MobiData-BW:mdbw_transit_stops_default/WebMercatorQuadx2/{z}/{y}/{x}?format=application/vnd.mapbox-vector-tile"],
     });
 
     map.addLayer({
