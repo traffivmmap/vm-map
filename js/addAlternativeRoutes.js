@@ -185,7 +185,7 @@ export function addAlternativeRoutes(map, data_alternative_routes) {
       });
       mappings.categoryGroupToAlternativeRouteID.insert("Alternativroute", i);
       mappings.alternativeRouteIdToSidebarEntry.insert(i, clone.querySelector(".sidebar-entry"));
-      document.querySelector(`[data-category="${feature.properties.category}"]`).appendChild(clone);
+      document.querySelector(`[data-category="Alternativroute"]`).appendChild(clone);
       $(document.getElementById("alternative-route-entry-" + i)).slideUp(0);
     });
 
