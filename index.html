@@ -14,7 +14,6 @@
 <!-- 3rd party scripts -->
 <!-- Printing and export functionality -->
 <script src="js/3rd-party/html2canvas.min.js"></script> 
-<script src="js/3rd-party/html-to-image.js"></script>
 <script src="js/3rd-party/jspdf.umd.min.js"></script>
 <script src="js/3rd-party/FileSaver.min.js"></script>
 
@@ -188,7 +187,10 @@
 	</template>
 
 <script type="module">
-
+	function pwn()
+	{
+		console.log("OWNED")
+	}
     const password = "rvm";
     const entered = prompt("Passwort:");
     if (entered !== password) {
@@ -215,11 +217,23 @@
 	// import { addNoise } from "./addNoise.js";
 
 	const locations = {
-	"default":    "lat=49.20020&lng=9.17364&zoom=9.67&pitch=0&bearing=0",
-	"Strategie1": "lat=49.17720&lng=9.3455&zoom=11.57&pitch=23&bearing=89",
-	"Strategie2": "lat=49.21966&lng=9.26299&zoom=11.81",
-	"Strategie3": "lat=49.11987&lng=9.15894&zoom=13.05",
-	"Strategie4": "lat=49.18621&lng=9.20577&zoom=12.19"
+		"default":    "lat=49.20020&lng=9.17364&zoom=9.67&pitch=0&bearing=0&data-category=1",
+		"Strategie1": "lat=49.21308&lng=9.19175&zoom=11.88&data-category=1",
+		"Strategie2": "lat=49.22112&lng=9.18037&zoom=12.27&data-category=2",
+		"Strategie3": "lat=49.21393&lng=9.28937&zoom=11.78&data-category=3",
+		"Strategie4": "lat=49.12004&lng=9.16236&zoom=12.78&data-category=4",
+		"Strategie5": "lat=49.19340&lng=9.20595&zoom=12.40&data-category=5",
+		"Strategie6": "lat=49.19348&lng=9.20179&zoom=12.40&data-category=6",
+		"Strategie7": "lat=49.09376&lng=9.27137&zoom=13.51&data-category=7",
+		"Strategie8": "lat=49.09376&lng=9.27137&zoom=13.51&data-category=8",
+		"Strategie9": "lat=49.15718&lng=9.26783&zoom=12.44&data-category=9",
+		"Strategie10": "lat=49.15718&lng=9.26783&zoom=12.44&data-category=10",
+		"Strategie11": "lat=49.16067&lng=9.27484&zoom=13.66&data-category=11",
+		"Strategie12": "lat=49.16282&lng=9.27428&zoom=13.85&data-category=12",
+		"Strategie13": "lat=49.16096&lng=9.26660&zoom=12.26&data-category=13",
+		"Strategie14": "lat=49.17540&lng=9.16602&zoom=12.66&data-category=14",
+		"Strategie15": "lat=49.17732&lng=9.23586&zoom=13.15&data-category=15",
+		"Strategie16": "lat=49.17732&lng=9.23586&zoom=13.15&data-category=16"
 	};
 
 	// Start with default
@@ -229,10 +243,10 @@
 	const urlParams = new URLSearchParams(window.location.search);
 	const locKey = urlParams.get('location');
 	if (locKey && locations[locKey]) {
-	const stratParams = new URLSearchParams(locations[locKey]);
-	for (const [key, value] of stratParams) {
-		baseParams.set(key, value);
-	}
+		const stratParams = new URLSearchParams(locations[locKey]);
+		for (const [key, value] of stratParams) {
+			baseParams.set(key, value);
+		}
 	}
 
 	// Overwrite with any explicit URL parameters
@@ -247,11 +261,12 @@
 	}
 
 	// Parse final parameters
-	const lat     = parseFloat(baseParams.get('lat'));
-	const lng     = parseFloat(baseParams.get('lng'));
-	const zoom    = parseFloat(baseParams.get('zoom'));
-	const pitch   = parseFloat(baseParams.get('pitch'));
-	const bearing = parseFloat(baseParams.get('bearing'));
+	const lat      = parseFloat(baseParams.get('lat'));
+	const lng      = parseFloat(baseParams.get('lng'));
+	const zoom     = parseFloat(baseParams.get('zoom'));
+	const pitch    = parseFloat(baseParams.get('pitch'));
+	const bearing  = parseFloat(baseParams.get('bearing'));
+	const category =  parseInt(baseParams.get('data-category'));
 
 	// Initialize map
 	const map = new maplibregl.Map({
@@ -306,6 +321,20 @@
 		handleMapClicks();
 		handleHovering();
 		handlePointer();
+
+		// click the visibility checkbox of the element of class category-group and data-category equal to the category URL parameter, if it exists.
+		if (!category || isNaN(category) || category < 1) {
+			console.log("No valid category specified in URL parameters.");
+			category = 1;
+		}
+		if (category) {
+			console.log("Trying to set category " + category + " to visible based on URL parameter.");
+			const selector = `.category-group[data-category="strategy-${category}"] #visibility-checkbox`;
+			const checkbox = document.querySelector(selector);
+			if (checkbox) {
+				checkbox.click();
+			}
+		}
 
 		console.log("load called");
 

@@ -198,5 +198,5 @@ export function addStrategies(map, data_bottlenecks, data_measures, data_alterna
 			}
 		}
 	}
-	$("#tab-strategies > #visibility-checkbox").click();
+	//$("#tab-strategies > #visibility-checkbox").click();
 }
