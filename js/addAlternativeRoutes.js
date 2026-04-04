@@ -3,6 +3,7 @@ import { createSidebarEntry } from "./createSidebarEntry.js";
 import { mappings } from "./store.js"
 import { MapHelpers } from "./mapHelpers.js"
 import { addLegendSymbol } from "./addLegendSymbol.js";
+import { reverseGeometry } from "./reverseGeometry.js";
 
 let firstload = true;
 
@@ -10,7 +11,7 @@ export function addAlternativeRoutes(map, data_alternative_routes) {
 
   if (firstload) {
     data_alternative_routes.features.forEach((feature, i) => {
-      data_alternative_routes.features[i] = reverse(data_alternative_routes.features[i]);
+      reverseGeometry(data_alternative_routes.features[i]);
       data_alternative_routes.features[i].properties.rotation = 90 + turf.bearing(data_alternative_routes.features[i].geometry.coordinates[0], data_alternative_routes.features[i].geometry.coordinates[1]);
     });
   }

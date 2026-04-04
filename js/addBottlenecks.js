@@ -1,6 +1,7 @@
 import { CreateCategoryGroup } from "./createCategoryGroup.js";
 import { filterBottlenecks } from "./filterBottlenecks.js";
 import { addLegendSymbol } from "./addLegendSymbol.js";
+import { reverseGeometry } from "./reverseGeometry.js";
 
 
 
@@ -30,7 +31,7 @@ export function addBottlenecks(map, data_bottlenecks, img_route)
 				console.log("Bottleneck " + i + " had an invalid geometry. Not adding sidebar-entry.");
 				continue;
 			}
-			data_bottlenecks.features[i] = reverse(data_bottlenecks.features[i]);
+			reverseGeometry(data_bottlenecks.features[i]);
 			data_bottlenecks.features[i].properties.rotation = 90 + turf.bearing(data_bottlenecks.features[i].geometry.coordinates[0], data_bottlenecks.features[i].geometry.coordinates[1]);	
 			
 			// Create and return a category group, but only if it not already exists
