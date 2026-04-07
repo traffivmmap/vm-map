@@ -1,5 +1,6 @@
 import { mappings } from "./store.js";
 
+
 // mapHelpers.js
 
 
@@ -88,21 +89,29 @@ export const MapHelpers = {
 
   flyToMeasureMarker(map, feature, index)
   {
+
+
+
+const coords = feature.geometry.coordinates;
+const bounds = coords.reduce(
+  (b, c) => [
+    [Math.min(b[0][0], c[0]), Math.min(b[0][1], c[1])],
+    [Math.max(b[1][0], c[0]), Math.max(b[1][1], c[1])],
+  ],
+  [[Infinity, Infinity], [-Infinity, -Infinity]]
+);
+
+
+
+
+
     let element = mappings.measureIdToMarkers.get(index)
     console.log(element)
-    let bearing = 0; //Math.floor(Math.random() * 360);
-    let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
     let pitch = 10 + Math.floor(Math.random() * 60);
-    let params = {
-				bearing: bearing,
-				center: feature.geometry.coordinates[0],
-				zoom: zoom,
-				pitch: pitch,
-				speed: 0.5,
-			}
+
 			if ($(element).is(':visible')) {
 				console.log("I fly to point");
-				map.flyTo(params)
+				map.fitBounds(bounds, { speed: 0.5, padding: 50, maxZoom: 15.99, pitch: 0 }); // 15.99 is the max zoom for the satellite map
 			}
 			else {
 				console.log("I fly do NOT fly to point");

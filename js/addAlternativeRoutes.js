@@ -10,8 +10,14 @@ let firstload = true;
 export function addAlternativeRoutes(map, data_alternative_routes) {
 
   if (firstload) {
+
+data_alternative_routes.features.sort((a, b) =>
+  a.properties.label.localeCompare(b.properties.label, undefined, { numeric: true })
+);
+
     data_alternative_routes.features.forEach((feature, i) => {
       reverseGeometry(data_alternative_routes.features[i]);
+      console.log(data_alternative_routes.features[i]);
       data_alternative_routes.features[i].properties.rotation = 90 + turf.bearing(data_alternative_routes.features[i].geometry.coordinates[0], data_alternative_routes.features[i].geometry.coordinates[1]);
     });
   }

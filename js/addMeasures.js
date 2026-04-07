@@ -45,6 +45,12 @@ function fetchSVGContent(category) {
 
 export function addMeasures(map, data_measures, img_route) {
 	console.log("loading massnahmen");
+
+
+data_measures.features.sort((a, b) =>
+  a.properties.label.localeCompare(b.properties.label, undefined, { numeric: true })
+);
+
 	allFeatures = data_measures.features;
 	categories = new Set(
 		allFeatures
@@ -57,9 +63,6 @@ export function addMeasures(map, data_measures, img_route) {
 		// add Sidebar entry
 		let props = feature.properties;
     let clone = createSidebarEntry("measure-entry-" + i, img_route, props.image, props.label, props.headline, props.description);
-		let bearing = 0; //Math.floor(Math.random() * 360);
-		let zoom = 12.75 + Math.floor(Math.random() * 3); // 15.99 is the max zoom for the satellite map
-		let pitch = 10 + Math.floor(Math.random() * 60);
 		clone.querySelector(".sidebar-entry").addEventListener('click', function (event) {
 			//don't propagate the click up to the category-elements (parents), because this would trigger the click event of the parent, leading to collapse of the group
 			event.stopPropagation();
@@ -213,7 +216,9 @@ function addMarkerToMap(map, LngLat, i, category, label) {
 		.setLngLat(LngLat)
 		.addTo(map);
 
-	mappings.measureIdToMarkers.set(i, []);
+		if (!mappings.measureIdToMarkers.has(i)) {
+			mappings.measureIdToMarkers.set(i, []);
+		}
 	mappings.measureIdToMarkers.get(i).push(m);
 }
 
