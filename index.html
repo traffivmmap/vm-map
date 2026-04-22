@@ -104,6 +104,10 @@
 				<input type="checkbox" id="mobilstationen" value="mobilstationen" onchange="switchlayer(['layer-mobilstationen-points', 'layer-mobilstationen-areas'], 'mobilstationen')" />
 				<label for="mobilstationen">Mobilstationen</label>
 			</div>
+			<div class="legend-item">
+				<input type="checkbox" id="projekt-lsa" value="projekt-lsa" onchange="switchlayer(['projekt-lsa-layer'], 'projekt-lsa')" />
+				<label for="projekt-lsa">Projekt LSA</label>
+			</div>
 			<div id ="gemeinden"></br>Gemeinden</div>
 			<div></br>Strategische Netze</div>
 			<div class="legend-item">
@@ -210,6 +214,7 @@
 	import { scrollSidebarToEntry } from "./js/scrollSidebarToEntry.js";
 	import { addStrategies } from "./js/addStrategies.js";
 	import { createPopupHTMLHaltestelle, createPopupHTMLGeneric } from './js/createPopupHTML.js';
+	import { addProjektLSA } from "./js/addProjektLSA.js";
 	// import { addNoise } from "./addNoise.js";
 
 	const locations = {
@@ -305,6 +310,7 @@
 		addStrategicNetworkStreets(map);
 		addAccidents(map);
 		addMobilityStations(map);
+		addProjektLSA(map);
 		// addNoise(map);
 		addMunicipalities(map); // Adds Communities layer
 		addCounties(); // Adds Counties Layer
@@ -349,6 +355,7 @@
 		addStrategicNetworkStreets(map);
 		addStudyArea(map);
 		addAccidents(map);
+		addProjektLSA(map);
 		// addNoise(map);
 		addMunicipalities(map);
 		addCounties();
@@ -739,6 +746,7 @@ function handleMapClicks(){
 			case 'lsa-osm-layer':
 			case 'layer-car-sharing':
 			case 'layer-mobilstationen-points':
+			case 'projekt-lsa-layer':
 
 				console.log(e.lngLat)
 
@@ -1036,7 +1044,8 @@ function Print(format) {
 
 function handlePointer()
 {
-	const layers = [/* 'bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',  */'layer-mobilstationen-areas', 'layer-mobilstationen-points', 'haltestellen-outlines', 'haltestellen-fill',
+	const layers = ['projekt-lsa-layer',
+		   /* 'bus-lines', 'bus-labels', 'stadtbahn-lines', 'stadtbahn-labels', 'zug-lines', 'zug-labels', 'haltestellen-outlines', 'haltestellen-outlines',  */'layer-mobilstationen-areas', 'layer-mobilstationen-points', 'haltestellen-outlines', 'haltestellen-fill',
 					'RadNETZBW-layer', 'RadNETZKreis-layer', 'RadNETZKom-layer', 'RadOSM-layer', 'bikeSharingStations', 'Scooter-Leihstationen',
 					'Fahrradabstellanlagen',
 					'K-line', 'K-direction-arrow', 'L-line', 'L-direction-arrow', 'B-line', 'B-direction-arrow', 'BAB-line', 'BAB-name-label', 'km-label', 'km-symbol', 'parking-sites', 'dwista-layer', 'lsa-layer', 'lsa-osm-layer', 'layer-car-sharing',
