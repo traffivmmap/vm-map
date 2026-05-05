@@ -341,6 +341,9 @@
 
 		let bounds = map.getBounds();
 		console.log('Map bounds (current view):', bounds);
+
+		// Apply layers requested via URL (e.g. ?layers=landkreise,projekt-lsa)
+		applyLayersFromUrl();
 		
 	});
 
@@ -363,6 +366,9 @@
 		addBottlenecks(map, data_bottlenecks, img_route);
 		console.log("style.load called");
 
+		// Re-apply URL-requested layers after style reload
+		applyLayersFromUrl();
+
 	});
 
 	map.on('moveend', () => {
@@ -377,6 +383,26 @@
 		});
 		history.replaceState({}, '', `${location.pathname}?${params}`);
 	});
+
+	// Apply any `layers` URL parameter to check checkboxes and trigger their change handlers
+	function applyLayersFromUrl() {
+		const layersParam = urlParams.get('layers');
+		if (!layersParam) return;
+		const ids = layersParam.split(',').map(s => s.trim()).filter(Boolean);
+		const allowed = ['landkreise', 'untersuchungsgebiet', 'projekt-lsa', 'strategisches-netz-pt', 'strategisches-netz-rad', 'strategisches-netz-miv'];
+		ids.forEach(id => {
+			if (!allowed.includes(id)) return;
+			const cb = document.getElementById(id);
+			if (cb) {
+				if (!cb.checked) {
+					cb.checked = true;
+					cb.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			} else {
+				console.warn('layers URL param: no checkbox found for id', id);
+			}
+		});
+	}
 
 	async function addCounties()
 	{
