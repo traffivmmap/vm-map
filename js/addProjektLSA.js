@@ -8,7 +8,7 @@ export async function addProjektLSA(map)
     // otherwise there would be errors in the console and the map would slow down significantly
 
     if (!map.hasImage('ampel')) {
-        const image = await map.loadImage('../data/images/120px-Ampel.svg.png');
+        const image = await map.loadImage('data/images/120px-Ampel.svg.png');
         map.addImage('ampel', image.data);
     }
 
@@ -40,7 +40,7 @@ export async function addProjektLSA(map)
         symbolType: "image",
         imgWidth: 6,
         imgHeight: 15,
-        imgSrc: "../data/images/120px-Ampel.svg.png",
+        imgSrc: "data/images/120px-Ampel.svg.png",
         directInsert: true
     }
 
