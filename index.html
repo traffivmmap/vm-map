@@ -792,7 +792,7 @@ function handleMapClicks(){
 					'source': 'Quelle',
 					'rating': 'Wertung',
 				};
-				new maplibregl.Popup()	
+				new maplibregl.Popup({ maxWidth: '320px' })	
 					.setLngLat(e.lngLat)
 					.setHTML(createPopupHTMLGeneric(topmostFeature.properties, translations))
 					.addTo(map)
@@ -823,7 +823,7 @@ function handleMapClicks(){
 
 				txt = txt + 'Anfangsnetzknoten: ' + topmostFeature.properties['Anfangsnetzknoten'].slice(-3) + "<br />"	
 				txt = txt + 'Strecke ab Anfangsnetzknoten: ' + lengthUpToPoint + " m<br />"
-				new maplibregl.Popup()	
+				new maplibregl.Popup({ maxWidth: '320px' })	
 						.setLngLat(e.lngLat)
 						.setHTML(txt)
 						.addTo(map)
@@ -904,14 +904,14 @@ function handleMapClicks(){
 
  			case 'haltestellen-outlines':
 			case 'haltestellen-fill':
-				new maplibregl.Popup()	
+				new maplibregl.Popup({ maxWidth: '320px' })	
 					.setLngLat(e.lngLat)
 					.setHTML(createPopupHTMLHaltestelle(topmostFeature.properties))
 					.addTo(map)
 				break; 
 			case 'layer-mobilstationen-areas':
 				txt = "Mobilstation:<br>Dieser Bereich stellt einen multimodalen Knoten dar, von dem aus mindestens drei verschiedene Mobilitätsformen fußläufig (Entfernung unter 100 Meter) erreicht werden können.";
-				new maplibregl.Popup()	
+				new maplibregl.Popup({ maxWidth: '320px' })
 					.setLngLat(e.lngLat)
 					.setHTML(txt)
 					.addTo(map);

@@ -11,6 +11,8 @@ export function addLegendSymbol(
         strokeThickness = 1,
         imgSrc,
         imageSize = 16,
+        imgWidth,
+        imgHeight,
         rectWidth = 20,
         rectHeight = 10,
         directInsert = false,
@@ -44,7 +46,12 @@ export function addLegendSymbol(
         symbol.style.height = lineThickness + "px";
         symbol.style.backgroundColor = lineColor;
     } else if (symbolType === "image") {
-        symbol.innerHTML = `<img src="${imgSrc}" alt="Legend symbol" width="${imageSize}" height="${imageSize}">`;
+        if (imgWidth && imgHeight) {
+            symbol.innerHTML = `<img src="${imgSrc}" alt="Legend symbol" width="${imgWidth}" height="${imgHeight}">`;
+        }
+        else {
+            symbol.innerHTML = `<img src="${imgSrc}" alt="Legend symbol" width="${imageSize}" height="${imageSize}">`;
+        }
     } else if (symbolType === "rectangle") {
         symbol.style.width = rectWidth + "px";
         symbol.style.height = rectHeight + "px";

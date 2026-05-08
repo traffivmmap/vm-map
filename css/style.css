@@ -262,6 +262,7 @@ input[type="checkbox"]:hover {
 
 .maplibregl-popup {
 	z-index:50000;
+	max-width: 300px;
 }
 
 .maplibregl-popup-content {
@@ -297,6 +298,7 @@ a:visited {
 
 .popup-table-generic td:nth-child(2){
   text-align: right;
+	max-width: 50%;
 }
 
 .popup-table-generic thead{
