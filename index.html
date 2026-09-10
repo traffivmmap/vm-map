@@ -267,7 +267,7 @@
 	const zoom     = parseFloat(baseParams.get('zoom'));
 	const pitch    = parseFloat(baseParams.get('pitch'));
 	const bearing  = parseFloat(baseParams.get('bearing'));
-	const category =  parseInt(baseParams.get('data-category'));
+	let category =  parseInt(baseParams.get('data-category'));
 
 	// Initialize map
 	const map = new maplibregl.Map({
@@ -283,10 +283,29 @@
 	map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-left');
 
 	
-	const data_bottlenecks = await (await fetch('data/geojson/problemstellen.geojson')).json();
-	let data_measures = await (await fetch('data/geojson/massnahmen.geojson')).json();
-	const data_streets = await (await fetch('data/geojson/strategic-networks/iv/BLK.geojson')).json();
-	window.data_alternative_routes = await (await fetch('data/geojson/alternativrouten.geojson')).json();
+	// The map fires 'style.load' and 'load' as soon as the style, glyphs and the
+	// first tiles are in. Awaiting these downloads *before* registering the
+	// handlers below means that on a slow/cold connection the events fire while we
+	// are still waiting here, and the handlers are attached to events that already
+	// happened - the map then stays empty. So: start the downloads now, but await
+	// them inside the handlers instead.
+	let data_bottlenecks, data_measures, data_streets;
+	const dataReady = Promise.all([
+		fetch('data/geojson/problemstellen.geojson').then(r => r.json()),
+		fetch('data/geojson/massnahmen.geojson').then(r => r.json()),
+		fetch('data/geojson/strategic-networks/iv/BLK.geojson').then(r => r.json()),
+		fetch('data/geojson/alternativrouten.geojson').then(r => r.json()),
+	]).then(([bottlenecks, measures, streets, alternativeRoutes]) => {
+		data_bottlenecks = bottlenecks;
+		data_measures = measures;
+		data_streets = streets;
+		window.data_alternative_routes = alternativeRoutes;
+	}).catch(err => {
+		// Without this the failure only shows up as a swallowed rejection in the
+		// 'load' handler, which looks exactly like the map never loading at all.
+		console.error('Could not load the GeoJSON data - map layers will be missing.', err);
+		throw err;
+	});
 
 	const img_route = 'data/images/'
 
@@ -301,6 +320,8 @@
 	});
 
     map.on('load', async () => {
+		await dataReady;
+
 		prepareUI();
 		// loadMeasures(); // Adds Measures markers to the map. Adds Category groups to the sidebar. Adds clicking functionality to the markers. Adds eventListeners to the markers. Adds Sidebar entries to the sidebar measures tab. Only has to be called once.
 		provideStyleImage(map);
@@ -347,8 +368,18 @@
 		
 	});
 
+	// 'style.load' also fires once during the initial load, right before 'load'.
+	// The 'load' handler above already adds every layer, so skip that first firing;
+	// this handler exists to re-add the layers after a basemap switch (setStyle()
+	// throws away all custom sources and layers).
+	let initialStyleLoadSeen = false;
 	map.on('style.load', async () => {
-		
+		if (!initialStyleLoadSeen) {
+			initialStyleLoadSeen = true;
+			return;
+		}
+		await dataReady;
+
 		addTraffic();
 
 		//await addOtherLayers();
@@ -358,6 +389,7 @@
 		addStrategicNetworkStreets(map);
 		addStudyArea(map);
 		addAccidents(map);
+		addMobilityStations(map);
 		addProjektLSA(map);
 		// addNoise(map);
 		addMunicipalities(map);
